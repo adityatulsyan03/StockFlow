@@ -34,7 +34,6 @@ fun CategoryList() {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-
     ){
         items(categories.size) { index ->
             CategoryCard(name = categories[index])
