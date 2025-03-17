@@ -4,11 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.stockflow.R
 
 @Composable
@@ -50,52 +51,48 @@ fun ItemCard(
     name: String, quantity: String, price: String
 ) {
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .clickable {  }
+            .clickable {  },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = name,
             modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(4.dp)
+                .padding(end = 8.dp)
+                .size(80.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.Red)
+        )
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = name,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .padding(end = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Red)
+            Text(
+                text = name,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontSize = 18.sp,
             )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = name,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize
-                )
-                Text(
-                    text = quantity,
-                    color = Color.Black,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize
-                )
-                Text(
-                    text = price,
-                    color = Color.Black,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize
-                )
-            }
+            Text(
+                text = quantity,
+                color = Color.Black,
+                fontSize = 14.sp
+            )
+            Text(
+                text = price,
+                color = Color.Black,
+                fontSize = 14.sp
+            )
         }
     }
 

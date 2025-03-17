@@ -1,6 +1,5 @@
 package com.example.stockflow.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,57 +15,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PartyList() {
+fun BillsList() {
 
-    val parties = listOf(
-        listOf("Aditya", "9876543212", "$100"),
-        listOf("Aditya", "9876543212", "$100"),
-        listOf("Aditya", "9876543212", "$100"),
+    val bills = listOf(
+        listOf("Aditya", "$30", "17-03-25"),
+        listOf("Aditya", "$30", "17-03-25"),
+        listOf("Aditya", "$30", "17-03-25"),
+    )
+
+    Text(
+        text = "RECENT BILLS"
     )
 
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(parties.size) { index ->
-            PartyCard(
-                name = parties[index][0],
-                number = parties[index][1],
-                amount = parties[index][2]
-            )
+        items(bills.size) { index ->
+            BillCard(name = bills[index][0], amount = bills[index][1], date = bills[index][2])
         }
     }
 
 }
 
 @Composable
-fun PartyCard(name: String, number: String, amount: String) {
-
+fun BillCard(name: String, amount: String, date: String) {
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(2.dp, Color.White, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .clickable {  }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .clickable { }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
         Column {
-            Text(
-                text = name,
-                fontWeight = FontWeight.Bold
-            )
-            Text(number)
+            Text(text = name)
+            Text(text = amount)
         }
-        Text(amount)
-
+        Text(text = date)
     }
 
 }
