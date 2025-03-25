@@ -1,27 +1,41 @@
 package com.example.stockflow.data.remote
 
+import com.example.stockflow.data.model.Category
 import com.example.stockflow.data.model.CustomResponse
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface CategoryApi {
 
-    @GET("")
-    suspend fun getAllCategories(): CustomResponse<String>
+    @PUT("/category/{categoryId}")
+    suspend fun updateCategoryById(
+        @Header("Authorization") token: String,
+        @Path("categoryId") categoryId: String,
+        @Body category: Category
+    ): CustomResponse<Category>
 
-    @POST("")
-    fun addCategory(@Query("name") name: String): CustomResponse<String>
+    @DELETE("/category/{categoryId}")
+    suspend fun deleteCategoryById(
+        @Header("Authorization") token: String,
+        @Path("categoryId") categoryId: String
+    ): CustomResponse<Unit>
 
-    @PUT("")
-    fun updateCategory(@Query("name") name: String): CustomResponse<String>
+    @GET("/category")
+    suspend fun getAllCategoriesByType(
+        @Header("Authorization") token: String,
+        @Query("type") type: String
+    ): CustomResponse<List<Category>>
 
-    @DELETE("")
-    fun deleteCategory(@Query("name") name: String): CustomResponse<String>
-
-    @GET("")
-    suspend fun getCategory(@Query("name") name: String): CustomResponse<String>
+    @POST("/category")
+    suspend fun addCategory(
+        @Header("Authorization") token: String,
+        @Body category: Category
+    ): CustomResponse<Category>
 
 }

@@ -1,18 +1,15 @@
 package com.example.stockflow.di
 
-import com.example.stockflow.data.remote.AuthApi
+import com.example.stockflow.BuildConfig
 import com.example.stockflow.data.remote.BankApi
-import com.example.stockflow.data.remote.BillItemApi
 import com.example.stockflow.data.remote.BillsApi
 import com.example.stockflow.data.remote.CategoryApi
-import com.example.stockflow.data.remote.DayBookReportApi
 import com.example.stockflow.data.remote.InventoryApi
-import com.example.stockflow.data.remote.MoneyReportApi
 import com.example.stockflow.data.remote.PartyApi
+import com.example.stockflow.data.remote.ReportApi
 import com.example.stockflow.data.remote.SellingUnitApi
-import com.example.stockflow.data.remote.StockSummaryApi
-import com.example.stockflow.data.remote.TransactionReportApi
 import com.example.stockflow.data.remote.UserApi
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,16 +47,10 @@ object AppModule {
         okHttpClient: OkHttpClient
     ): Retrofit =
         Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-    @Provides
-    @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
-        return retrofit.create(AuthApi::class.java)
-    }
 
     @Singleton
     @Provides
@@ -99,20 +90,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideBillItemApi(retrofit: Retrofit): BillItemApi {
-        return retrofit.create(BillItemApi::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideDayBookReportApi(retrofit: Retrofit): DayBookReportApi{
-        return retrofit.create(DayBookReportApi::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideMoneyReportApi(retrofit: Retrofit): MoneyReportApi {
-        return retrofit.create(MoneyReportApi::class.java)
+    fun provideReportApi(retrofit: Retrofit): ReportApi {
+        return retrofit.create(ReportApi::class.java)
     }
 
     @Singleton
@@ -121,16 +100,7 @@ object AppModule {
         return retrofit.create(SellingUnitApi::class.java)
     }
 
-    @Singleton
     @Provides
-    fun provideStockSummaryApi(retrofit: Retrofit): StockSummaryApi {
-        return retrofit.create(StockSummaryApi::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideTransactionReportApi(retrofit: Retrofit): TransactionReportApi {
-        return retrofit.create(TransactionReportApi::class.java)
-    }
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
 }

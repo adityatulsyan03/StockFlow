@@ -5,21 +5,21 @@ import com.google.gson.annotations.SerializedName
 data class Bank(
 
     @SerializedName("id")
-    val id: String,
+    val id: String ?= null,
 
-    @SerializedName("account_number")
-    val bankAccountNumber: String,
+    @SerializedName("accountNumber")
+    val bankAccountNumber: String ?= null,
 
-    @SerializedName("ifsc_code")
-    val ifscCode: String,
+    @SerializedName("ifscCode")
+    val ifscCode: String ?= null,
 
-    @SerializedName("holder_name")
-    val accountHolderName: String,
+    @SerializedName("holderName")
+    val accountHolderName: String ?= null,
 
-    @SerializedName("bank_name")
-    val bankName: String,
+    @SerializedName("bankName")
+    val bankName: String ?= null,
 
-    @SerializedName("upi_id")
-    val upiId: String,
+    @SerializedName("upiId")
+    val upiId: String ?= null,
 
 )

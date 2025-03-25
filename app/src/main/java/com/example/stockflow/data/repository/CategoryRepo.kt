@@ -1,6 +1,8 @@
 package com.example.stockflow.data.repository
 
+import android.util.Log
 import com.example.stockflow.common.UiState
+import com.example.stockflow.data.model.Category
 import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.remote.CategoryApi
 import kotlinx.coroutines.flow.Flow
@@ -11,59 +13,59 @@ class CategoryRepo @Inject constructor(
     private val categoryApi: CategoryApi
 ) {
 
-    suspend fun getAllCategories(): Flow<UiState<CustomResponse<String>>> = flow {
+    suspend fun updateCategoryById(token: String, categoryId: String, category: Category): Flow<UiState<CustomResponse<Category>>> = flow {
         try {
             emit(UiState.Loading)
-            val response = categoryApi.getAllCategories()
-            if (response.status) {
-                emit(UiState.Success(data = response, message = "Categories retrieved successfully"))
+            val response = categoryApi.updateCategoryById(token, categoryId, category)
+            if (response.status == "OK") {
+                emit(UiState.Success(response, "Category updated successfully"))
             } else {
-                emit(UiState.Failed(message = response.data?.toString() ?: "Failed to retrieve categories"))
+                emit(UiState.Failed(response.message ?: "Failed to update category"))
             }
         } catch (e: Exception) {
-            emit(UiState.Failed(message = e.message ?: "An unexpected error occurred"))
+            emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }
 
-    suspend fun addCategory(name: String): Flow<UiState<CustomResponse<String>>> = flow {
+    suspend fun deleteCategoryById(token: String, categoryId: String): Flow<UiState<CustomResponse<Unit>>> = flow {
         try {
             emit(UiState.Loading)
-            val response = categoryApi.addCategory(name)
-            if (response.status) {
-                emit(UiState.Success(data = response, message = "Category added successfully"))
+            val response = categoryApi.deleteCategoryById(token, categoryId)
+            if (response.status == "OK") {
+                emit(UiState.Success(response, "Category deleted successfully"))
             } else {
-                emit(UiState.Failed(message = response.data ?: "Failed to add category"))
+                emit(UiState.Failed(response.message ?: "Failed to delete category"))
             }
         } catch (e: Exception) {
-            emit(UiState.Failed(message = e.message ?: "An unexpected error occurred"))
+            emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }
 
-    suspend fun updateCategory(name: String): Flow<UiState<CustomResponse<String>>> = flow {
+    suspend fun getAllCategoriesByType(token: String, type: String): Flow<UiState<CustomResponse<List<Category>>>> = flow {
         try {
             emit(UiState.Loading)
-            val response = categoryApi.updateCategory(name)
-            if (response.status) {
-                emit(UiState.Success(data = response, message = "Category updated successfully"))
+            val response = categoryApi.getAllCategoriesByType(token, type)
+            if (response.status == "OK") {
+                emit(UiState.Success(response, "Categories retrieved successfully"))
             } else {
-                emit(UiState.Failed(message = response.data ?: "Failed to update category"))
+                emit(UiState.Failed(response.message ?: "Failed to fetch categories"))
             }
         } catch (e: Exception) {
-            emit(UiState.Failed(message = e.message ?: "An unexpected error occurred"))
+            emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }
 
-    suspend fun deleteCategory(name: String): Flow<UiState<CustomResponse<String>>> = flow {
+    suspend fun addCategory(token: String, category: Category): Flow<UiState<CustomResponse<Category>>> = flow {
         try {
             emit(UiState.Loading)
-            val response = categoryApi.deleteCategory(name)
-            if (response.status) {
-                emit(UiState.Success(data = response, message = "Category deleted successfully"))
+            val response = categoryApi.addCategory(token, category)
+            if (response.status == "OK") {
+                emit(UiState.Success(response, "Category added successfully"))
             } else {
-                emit(UiState.Failed(message = response.data ?: "Failed to delete category"))
+                emit(UiState.Failed(response.message ?: "Failed to add category"))
             }
         } catch (e: Exception) {
-            emit(UiState.Failed(message = e.message ?: "An unexpected error occurred"))
+            emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }
 }

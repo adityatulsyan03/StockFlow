@@ -1,14 +1,15 @@
 package com.example.stockflow.data.model
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDate
 
 data class Inventory(
 
     @SerializedName("id")
-    val id: String,
+    val id: String? = null,
 
     @SerializedName("photo")
-    val photo: String,
+    val photo: String? = null,
 
     @SerializedName("name")
     val name: String,
@@ -16,10 +17,10 @@ data class Inventory(
     @SerializedName("quantity")
     val quantity: Int,
 
-    @SerializedName("sell_price")
+    @SerializedName("sellPrice")
     val sellPrice: Float,
 
-    @SerializedName("sell_price_unit")
+    @SerializedName("sellPriceUnit")
     val sellPriceUnit: String,
 
     @SerializedName("category")
@@ -28,28 +29,28 @@ data class Inventory(
     @SerializedName("mrp")
     val mrp: Float,
 
-    @SerializedName("purchase_price")
+    @SerializedName("purchasePrice")
     val purchasePrice: Float,
 
     @SerializedName("tax")
-    val tax: Double,
+    val tax: Double? = null,
 
-    @SerializedName("item_code")
-    val itemCode: String,
+    @SerializedName("itemCode")
+    val itemCode: String? = null,
 
     @SerializedName("barcode")
-    val barcode: String,
+    val barcode: String? = null,
 
-    @SerializedName("item_description")
-    val itemDescription: String,
+    @SerializedName("itemDescription")
+    val itemDescription: String? = null,
 
-    @SerializedName("low_stock_alert_quantity")
-    val lowStockAlert: Int,
+    @SerializedName("lowStockAlertQuantity")
+    val lowStockAlert: Int? = null,
 
-    @SerializedName("storage_location")
-    val storageLocation: String,
+    @SerializedName("storageLocation")
+    val storageLocation: String? = null,
 
-    @SerializedName("expiry_date")
-    val expireDate: String
+    @SerializedName("expiryDate")
+    val expireDate: LocalDate? = null
 
 )

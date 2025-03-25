@@ -1,27 +1,45 @@
 package com.example.stockflow.data.remote
 
 import com.example.stockflow.data.model.CustomResponse
+import com.example.stockflow.data.model.Party
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface PartyApi {
 
-    @GET("")
-    suspend fun getAllParties(): CustomResponse<String>
+    @GET("/party/{partyId}")
+    suspend fun getPartyById(
+        @Header("Authorization") token: String,
+        @Query("partyId") partyId: String
+    ): CustomResponse<Party>
 
-    @POST("")
-    fun addParty(): CustomResponse<String>
+    @PUT("/party/{partyId}")
+    suspend fun updatePartyById(
+        @Header("Authorization") token: String,
+        @Query("partyId") partyId: String,
+        @Body party: Party
+    ): CustomResponse<Party>
 
-    @PATCH("")
-    fun updateParty(): CustomResponse<String>
+    @DELETE("/party/{partyId}")
+    suspend fun deletePartyById(
+        @Header("Authorization") token: String,
+        @Query("partyId") partyId: String
+    ): CustomResponse<Unit>
 
-    @GET("")
-    fun getParty(@Query("name") name: String): CustomResponse<String>
+    @GET("/party")
+    suspend fun getAllParties(
+        @Header("Authorization") token: String
+    ): CustomResponse<List<Party>>
 
-    @DELETE("")
-    fun deleteParty(@Query("name") name:String): CustomResponse<String>
-
+    @POST("/party")
+    suspend fun createParty(
+        @Header("Authorization") token: String,
+        @Body party: Party
+    ): CustomResponse<Party>
 }

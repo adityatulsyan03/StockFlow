@@ -1,24 +1,37 @@
 package com.example.stockflow.data.remote
 
+import com.example.stockflow.data.model.AccessTokenBody
 import com.example.stockflow.data.model.CustomResponse
+import com.example.stockflow.data.model.User
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface UserApi {
 
-    @GET("")
-    suspend fun getUser(@Query("name") name: String): CustomResponse<String>
+    @GET("/user")
+    suspend fun getUser(
+        @Header("Authorization") token: String
+    ): CustomResponse<User>
 
-    @PUT("")
-    fun updateUser(@Query("name") name: String): CustomResponse<String>
+    @PUT("/user")
+    suspend fun updateUser(
+        @Header("Authorization") token: String,
+        @Body user: User
+    ): CustomResponse<User>
 
-    @DELETE("")
-    fun deleteUser(@Query("name") name: String): CustomResponse<String>
+    @POST("/user")
+    suspend fun authUser(
+        @Body accessToken: AccessTokenBody
+    ): CustomResponse<User>
 
-    @POST("")
-    fun addUser(): CustomResponse<String>
+    @DELETE("/user")
+    suspend fun deleteUser(
+        @Header("Authorization") token: String
+    ): CustomResponse<Unit>
 
 }

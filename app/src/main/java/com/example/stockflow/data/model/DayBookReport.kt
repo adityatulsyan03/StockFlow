@@ -1,6 +1,7 @@
 package com.example.stockflow.data.model
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDate
 
 data class DayBookReport(
 
@@ -8,7 +9,7 @@ data class DayBookReport(
     val id: String,
 
     @SerializedName("date")
-    val date: String,
+    val date: LocalDate,
 
     @SerializedName("money_in")
     val moneyIn: Int,

@@ -1,22 +1,53 @@
 package com.example.stockflow.data.remote
 
+import com.example.stockflow.data.model.Bills
 import com.example.stockflow.data.model.CustomResponse
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
+import java.time.LocalDate
 
 interface BillsApi {
 
-    @GET("bills")
-    suspend fun getAllBills(@Query("name") name: String): CustomResponse<String>
+    @GET("/bills")
+    suspend fun getAllBills(
+        @Header("Authorization") token: String
+    ): CustomResponse<List<Bills>>
 
-    @GET("bills/{id}")
-    suspend fun getBill(@Query("name") name: String): CustomResponse<String>
+    @POST("/bills")
+    suspend fun postBill(
+        @Header("Authorization") token: String,
+        @Body bill: Bills
+    ): CustomResponse<Bills>
 
-    @PUT("bills/{id}")
-    suspend fun updateBill(@Query("name") name: String): CustomResponse<String>
+    @GET("/bills/{billId}")
+    suspend fun getBill(
+        @Header("Authorization") token: String,
+        @Path("billId") billId: String
+    ): CustomResponse<Bills>
 
-    @DELETE("bills/{id}")
-    suspend fun deleteBill(@Query("name") name: String): CustomResponse<String>
+    @DELETE("/bills/{billId}")
+    suspend fun deleteBill(
+        @Header("Authorization") token: String,
+        @Path("billId") billId: String
+    ): CustomResponse<Unit>
 
-    @POST("bills")
-    suspend fun postBill(@Query("name") name: String): CustomResponse<String>
+    @GET("/bills/party/{partyId}")
+    suspend fun getBillsByParty(
+        @Header("Authorization") token: String,
+        @Path("partyId") partyId: String
+    ): CustomResponse<List<Bills>>
+
+    @GET("/bills/date-range")
+    suspend fun getBillsByDateRange(
+        @Header("Authorization") token: String,
+        @Query("startDate") startDate: LocalDate,
+        @Query("endDate") endDate: LocalDate
+    ): CustomResponse<List<Bills>>
+
 }

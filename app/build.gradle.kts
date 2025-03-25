@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,6 +26,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "FIREBASE_TOKEN", getToken())
+        buildConfigField("String", "BASE_URL", getBaseUrlInCIEnvironment())
     }
 
     buildTypes {
@@ -42,6 +47,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -73,6 +79,7 @@ dependencies {
     implementation(libs.hilt.android.gradle.plugin)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -98,4 +105,21 @@ dependencies {
     // Extended Material Components
     implementation(libs.androidx.material.icons.extended)
 
+    // Coil
+    implementation(libs.coil.compose)
+
+}
+
+fun getToken(): String{
+    val propFile = rootProject.file("local.properties")
+    val properties = Properties()
+    properties.load(FileInputStream(propFile))
+    return properties.getProperty("FIREBASE_TOKEN")
+}
+
+fun getBaseUrlInCIEnvironment(): String {
+    val propFile = rootProject.file("local.properties")
+    val properties = Properties()
+    properties.load(FileInputStream(propFile))
+    return properties.getProperty("BASE_URL")
 }

@@ -12,7 +12,20 @@
           "package_name": "com.example.stockflow"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "274215462616-je20rlpd4v851mffc9hrghggc7g0kl9q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.stockflow",
+            "certificate_hash": "705e0d49d526749c9d786e8ed8ba357b551bde9b"
+          }
+        },
+        {
+          "client_id": "274215462616-8ob666ej8ld5j0htb5goc1kbkr4anh5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD_Jo2yPG05umYq8_2S_oLUdVYz0vdoFRI"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274215462616-8ob666ej8ld5j0htb5goc1kbkr4anh5v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

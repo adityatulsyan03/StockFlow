@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 data class Party(
 
     @SerializedName("id")
-    val id: String,
+    val id: String? = null,
 
-    @SerializedName("is_customer")
+    @SerializedName("isCustomer")
     val customerSupplier: Boolean,
 
     @SerializedName("name")
@@ -19,16 +19,16 @@ data class Party(
     @SerializedName("category")
     val category: String,
 
-    @SerializedName("billing_address")
+    @SerializedName("billingAddress")
     val address: String,
 
-    @SerializedName("delivery_address")
+    @SerializedName("deliveryAddress")
     val deliveryAddress: String,
 
-    @SerializedName("postal_code")
+    @SerializedName("postalCode")
     val deliveryPostalCode: String,
 
-    @SerializedName("gst_number")
+    @SerializedName("gstNumber")
     val gstNumber: String,
 
     @SerializedName("dob")
