@@ -31,7 +31,7 @@ class ReportViewModel @Inject constructor(
     private val _moneyReportState = MutableStateFlow<UiState<CustomResponse<List<MoneyReport>>>>(UiState.Idle)
     val moneyReportState = _moneyReportState.asStateFlow()
 
-    private val _daybookReportState = MutableStateFlow<UiState<CustomResponse<List<DayBookReport>>>>(UiState.Idle)
+    private val _daybookReportState = MutableStateFlow<UiState<CustomResponse<DayBookReport>>>(UiState.Idle)
     val daybookReportState = _daybookReportState.asStateFlow()
 
     private val _daybookReportByDateState = MutableStateFlow<UiState<CustomResponse<DayBookReport>>>(UiState.Idle)

@@ -108,6 +108,9 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
+    //Swipe Refresh
+    implementation(libs.accompanist.swiperefresh)
+
 }
 
 fun getToken(): String{

@@ -10,13 +10,13 @@ data class MoneyReport(
     @SerializedName("date")
     val date: String,
 
-    @SerializedName("party_name")
+    @SerializedName("partyName")
     val name: String,
 
     @SerializedName("amount")
     val amount: String,
 
-    @SerializedName("is_money_in_report")
+    @SerializedName("isMoneyInReport")
     val moneyType: Boolean,
 
     @SerializedName("mode")

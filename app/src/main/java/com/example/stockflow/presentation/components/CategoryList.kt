@@ -7,15 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,15 +16,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.stockflow.common.UiState
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
-import com.google.android.play.integrity.internal.c
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
+    val categoryState by categoryViewModel.getCategoriesState.collectAsState()
+    var isRefreshing by remember { mutableStateOf(false) }
 
-    val categoryState = categoryViewModel.getCategoriesState.collectAsState().value
-
-    LaunchedEffect(screen) {
-        categoryViewModel.getAllCategoriesByType(screen)
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            categoryViewModel.getAllCategories()
+            isRefreshing = false
+        }
     }
 
     Column(
@@ -46,57 +43,63 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        when (categoryState) {
-            is UiState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            is UiState.Success -> {
-                val categories = categoryState.data.data ?: emptyList()
-                if (categories.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No categories Available",
-                            color = Color.Gray
-                        )
-                    }
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = { isRefreshing = true } // Trigger refresh
+        ) {
+            when (categoryState) {
+                is UiState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
-                else{
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(categories.size) { index ->
-                            CategoryCard(
-                                name = categories[index].name,
-                                onEditClick = { /* Handle edit */ },
-                                onDeleteClick = { categories[index].id?.let {
-                                    categoryViewModel.deleteCategoryById(
-                                        it
-                                    )
-                                } }
+
+                is UiState.Success -> {
+                    val categories = (categoryState as UiState.Success).data.data ?: emptyList()
+                    val typeCategory = categories.filter { it.type == screen }
+
+                    if (typeCategory.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No categories Available",
+                                color = Color.Gray
                             )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(typeCategory.size) { index ->
+                                CategoryCard(
+                                    name = typeCategory[index].name,
+                                    onDeleteClick = {
+                                        typeCategory[index].id?.let { categoryId ->
+                                            categoryViewModel.deleteCategoryById(categoryId)
+                                        }
+                                        categoryViewModel.getAllCategories()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            is UiState.Failed -> {
-                Text(
-                    text = "Error: ${categoryState.message}",
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
+                is UiState.Failed -> {
+                    Text(
+                        text = "Error: ${(categoryState as UiState.Failed).message}",
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
 
-            is UiState.Idle -> {
-//                categoryViewModel.getAllCategoriesByType(screen)
+                is UiState.Idle -> {
+                    categoryViewModel.getAllCategories()
+                }
             }
         }
     }
@@ -105,7 +108,6 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
 @Composable
 fun CategoryCard(
     name: String,
-    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Row(
@@ -124,21 +126,12 @@ fun CategoryCard(
             color = Color.White
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Category",
-                    tint = Color(0xFFB0BEC5)
-                )
-            }
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Category",
-                    tint = Color.Red
-                )
-            }
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete Category",
+                tint = Color.Red
+            )
         }
     }
 }

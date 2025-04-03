@@ -73,12 +73,13 @@ class PartyRepo @Inject constructor(
         try {
             emit(UiState.Loading)
             val response = partyApi.createParty(token, party)
-            if (response.status == "OK") {
+            if (response.status == "CREATED") {
                 emit(UiState.Success(response, "Party created successfully"))
             } else {
                 emit(UiState.Failed(response.message ?: "Failed to create party"))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }

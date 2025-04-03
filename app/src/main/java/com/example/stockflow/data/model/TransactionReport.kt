@@ -11,18 +11,21 @@ data class TransactionReport(
     @SerializedName("date")
     val date: String,
 
-    @SerializedName("is_sales")
+    @SerializedName("isInvoice")
     val isSales: Boolean,
 
-    @SerializedName("bill_no")
+    @SerializedName("billId")
     val billNo: String,
 
-    @SerializedName("party_name")
+    @SerializedName("userId")
+    val userName: String,
+
+    @SerializedName("partyId")
     val partyName: String, // Can be Customer or Supplier
 
-    @SerializedName("total_amount")
+    @SerializedName("totalAmount")
     val totalAmount: String,
 
-    @SerializedName("payment_method")
+    @SerializedName("paymentMethod")
     val paymentMethod: String
 )

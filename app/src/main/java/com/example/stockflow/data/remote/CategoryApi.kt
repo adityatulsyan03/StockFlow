@@ -32,10 +32,15 @@ interface CategoryApi {
         @Query("type") type: String
     ): CustomResponse<List<Category>>
 
+    @GET("/category")
+    suspend fun getAllCategories(
+        @Header("Authorization") token: String
+    ): CustomResponse<List<Category>>
+
     @POST("/category")
     suspend fun addCategory(
         @Header("Authorization") token: String,
-        @Body category: Category
-    ): CustomResponse<Category>
+        @Body category: List<Category>
+    ): CustomResponse<List<Category>>
 
 }

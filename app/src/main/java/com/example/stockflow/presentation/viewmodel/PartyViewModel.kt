@@ -50,6 +50,7 @@ class PartyViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 Log.e("PartyViewModel", "Error creating party: ${e.message}")
                 _createPartyState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }

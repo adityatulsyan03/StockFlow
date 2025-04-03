@@ -24,6 +24,7 @@ import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
+import com.example.stockflow.presentation.viewmodel.PartyViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -32,7 +33,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddPartyScreen(
     navController: NavController,
-    onSaveClick: (Party) -> Unit
+    viewModel: PartyViewModel
 ) {
     val context = LocalContext.current
 
@@ -69,18 +70,20 @@ fun AddPartyScreen(
         floatingActionButton = {
             FAB(
                 onClick = {
-                    val party = Party(
-                        customerSupplier = isCustomer,
-                        name = name,
-                        phone = phone,
-                        category = category,
-                        address = billingAddress,
-                        deliveryAddress = deliveryAddress,
-                        deliveryPostalCode = deliveryPostalCode,
-                        gstNumber = gstNumber,
-                        dob = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: ""
+                    viewModel.createParty(
+                        Party(
+                            whatsappAlerts = true,
+                            name = name,
+                            phone = phone,
+                            category = category,
+                            address = billingAddress,
+                            deliveryAddress = deliveryAddress,
+                            deliveryPostalCode = deliveryPostalCode.toIntOrNull() ?: 0,
+                            gstNumber = gstNumber,
+                            customerSupplier = isCustomer,
+                            dob = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: ""
+                        )
                     )
-//                    onSaveClick(party)
                 },
                 text = "ADD",
                 extended = true,
@@ -114,7 +117,7 @@ fun AddPartyScreen(
             item {
                 DropdownTextField(
                     label = "Category",
-                    options = listOf("Retailer", "Wholesaler", "Distributor", "Manufacturer"),
+                    options = listOf("Technology", "Wholesaler", "Distributor", "Manufacturer"),
                     selectedOption = category,
                     onOptionSelected = { category = it },
                     modifier = Modifier.fillMaxWidth()
@@ -177,7 +180,7 @@ fun AddPartyScreen(
             item {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = dob?.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) ?: "",
+                        value = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
                         onValueChange = {},
                         label = { Text("Date of Birth") },
                         readOnly = true,

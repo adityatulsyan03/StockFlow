@@ -8,8 +8,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,10 +24,22 @@ import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun PartyList(viewModel: PartyViewModel) {
+
     val partiesState by viewModel.getAllPartiesState.collectAsState()
+
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            viewModel.getAllParties()
+            isRefreshing = false
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -35,61 +51,65 @@ fun PartyList(viewModel: PartyViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        when (partiesState) {
-            is UiState.Loading -> {
-                // Show loading indicator
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color.White)
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = { isRefreshing = true }
+        ) {
+            when (partiesState) {
+                is UiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
                 }
-            }
 
-            is UiState.Success -> {
-                val parties = (partiesState as UiState.Success).data.data ?: emptyList()
-                if (parties.isEmpty()) {
+                is UiState.Success -> {
+                    val parties = (partiesState as UiState.Success).data.data ?: emptyList()
+                    if (parties.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No Parties Available",
+                                color = Color.Gray
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(parties.size) { index ->
+                                val party = parties[index]
+                                PartyCard(
+                                    name = party.name,
+                                    number = party.phone,
+                                    amount = "₹54" // Assuming `amount` is a field in `Party`
+                                )
+                            }
+                        }
+                    }
+                }
+
+                is UiState.Failed -> {
+                    val errorMessage = (partiesState as UiState.Failed).message
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No Parties Available",
-                            color = Color.Gray
+                            text = "Error: $errorMessage",
+                            color = Color.Red
                         )
                     }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(parties.size) { index ->
-                            val party = parties[index]
-                            PartyCard(
-                                name = party.name,
-                                number = party.phone,
-                                amount = "₹54" // Assuming `amount` is a field in `Party`
-                            )
-                        }
-                    }
                 }
-            }
 
-            is UiState.Failed -> {
-                val errorMessage = (partiesState as UiState.Failed).message
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Error: $errorMessage",
-                        color = Color.Red
-                    )
+                is UiState.Idle -> {
+                    viewModel.getAllParties()
                 }
-            }
-
-            is UiState.Idle -> {
-                viewModel.getAllParties()
             }
         }
     }

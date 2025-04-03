@@ -73,12 +73,13 @@ class InventoryRepo @Inject constructor(
         try {
             emit(UiState.Loading)
             val response = inventoryApi.addInventory(token, inventory)
-            if (response.status == "OK") {
+            if (response.status == "CREATED") {
                 emit(UiState.Success(response, "Inventory added successfully"))
             } else {
                 emit(UiState.Failed(response.message ?: "Failed to add inventory"))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }

@@ -20,19 +20,22 @@ class CategoryViewModel @Inject constructor(
     private val userRepo: UserRepo
 ) : ViewModel() {
 
-    private val _addCategoryState = MutableStateFlow<UiState<CustomResponse<Category>>>(UiState.Idle)
+    private val _addCategoryState =
+        MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
     val addCategoryState = _addCategoryState.asStateFlow()
 
-    private val _updateCategoryState = MutableStateFlow<UiState<CustomResponse<Category>>>(UiState.Idle)
+    private val _updateCategoryState =
+        MutableStateFlow<UiState<CustomResponse<Category>>>(UiState.Idle)
     val updateCategoryState = _updateCategoryState.asStateFlow()
 
     private val _deleteCategoryState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteCategoryState = _deleteCategoryState.asStateFlow()
 
-    private val _getCategoriesState = MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
+    private val _getCategoriesState =
+        MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
     val getCategoriesState = _getCategoriesState.asStateFlow()
 
-    fun addCategory(category: Category) {
+    fun addCategory(category: List<Category>) {
         _addCategoryState.value = UiState.Loading
 
         viewModelScope.launch {
@@ -47,6 +50,7 @@ class CategoryViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 Log.e("CategoryViewModel", "Error adding category: ${e.message}")
                 _addCategoryState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }
@@ -64,7 +68,10 @@ class CategoryViewModel @Inject constructor(
                 categoryRepo.updateCategoryById(token, categoryId, category).collect { response ->
                     _updateCategoryState.value = response
                     if (response is UiState.Success) {
-                        Log.d("CategoryViewModel", "Category updated successfully: ${response.data}")
+                        Log.d(
+                            "CategoryViewModel",
+                            "Category updated successfully: ${response.data}"
+                        )
                     }
                 }
             } catch (e: Exception) {
@@ -106,7 +113,34 @@ class CategoryViewModel @Inject constructor(
                 categoryRepo.getAllCategoriesByType(token, type).collect { response ->
                     _getCategoriesState.value = response
                     if (response is UiState.Success) {
-                        Log.d("CategoryViewModel", "Categories retrieved successfully: ${response.data}")
+                        Log.d(
+                            "CategoryViewModel",
+                            "Categories retrieved successfully: ${response.data}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CategoryViewModel", "Error fetching categories: ${e.message}")
+                _getCategoriesState.value = UiState.Failed(e.message ?: "Unknown error occurred")
+            }
+        }
+    }
+
+    fun getAllCategories() {
+        _getCategoriesState.value = UiState.Loading
+
+        viewModelScope.launch {
+            try {
+                val token = userRepo.getIdToken()
+                Log.d("CategoryViewModel", "Token: $token")
+
+                categoryRepo.getAllCategories(token).collect { response ->
+                    _getCategoriesState.value = response
+                    if (response is UiState.Success) {
+                        Log.d(
+                            "CategoryViewModel",
+                            "Categories retrieved successfully: ${response.data}"
+                        )
                     }
                 }
             } catch (e: Exception) {

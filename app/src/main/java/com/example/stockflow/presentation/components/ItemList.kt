@@ -19,10 +19,22 @@ import androidx.compose.ui.unit.sp
 import com.example.stockflow.R
 import com.example.stockflow.common.UiState
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun ItemList(viewModel: InventoryViewModel) {
+
     val inventoryState by viewModel.getAllInventoriesState.collectAsState()
+
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            viewModel.getAllInventories()
+            isRefreshing = false
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -34,55 +46,60 @@ fun ItemList(viewModel: InventoryViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        when (inventoryState) {
-            is UiState.Loading -> {
-                // Show a loading indicator
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color.White)
-                }
-            }
-
-            is UiState.Success -> {
-                val items = (inventoryState as UiState.Success).data.data ?: emptyList()
-
-                if (items.isEmpty()) {
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = { isRefreshing = true }
+        ) {
+            when (inventoryState) {
+                is UiState.Loading -> {
+                    // Show a loading indicator
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "No items found", color = Color.Gray)
+                        CircularProgressIndicator(color = Color.White)
                     }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(items.size) { index ->
-                            ItemCard(
-                                name = items[index].name,
-                                quantity = "${items[index].quantity} pcs",
-                                price = "₹${items[index].sellPrice}"
-                            )
+                }
+
+                is UiState.Success -> {
+                    val items = (inventoryState as UiState.Success).data.data ?: emptyList()
+
+                    if (items.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "No items found", color = Color.Gray)
+                        }
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(items.size) { index ->
+                                ItemCard(
+                                    name = items[index].name,
+                                    quantity = "${items[index].quantity} pcs",
+                                    price = "₹${items[index].sellPrice}"
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            is UiState.Failed -> {
-                val errorMessage = (inventoryState as UiState.Failed).message
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Error: $errorMessage", color = Color.Red)
+                is UiState.Failed -> {
+                    val errorMessage = (inventoryState as UiState.Failed).message
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Error: $errorMessage", color = Color.Red)
+                    }
                 }
-            }
 
-            is UiState.Idle -> {
-                viewModel.getAllInventories()
+                is UiState.Idle -> {
+                    viewModel.getAllInventories()
+                }
             }
         }
     }

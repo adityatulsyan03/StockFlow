@@ -7,7 +7,7 @@ data class SellingUnit(
     @SerializedName("id")
     val id: String,
 
-    @SerializedName("unit_name")
+    @SerializedName("unitName")
     val unitName: String,
 
 )

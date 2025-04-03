@@ -61,7 +61,7 @@ fun InventoryScreen(
                             restoreState = true
                         }
                     } else {
-                        navController.navigate("${Screens.AddCategoryScreen.route}?type=$type") {
+                        navController.navigate("${Screens.AddCategoryScreen.route}/$type") {
                             launchSingleTop = true
                             restoreState = true
                         }

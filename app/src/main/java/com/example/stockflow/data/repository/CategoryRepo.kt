@@ -1,6 +1,5 @@
 package com.example.stockflow.data.repository
 
-import android.util.Log
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Category
 import com.example.stockflow.data.model.CustomResponse
@@ -55,16 +54,32 @@ class CategoryRepo @Inject constructor(
         }
     }
 
-    suspend fun addCategory(token: String, category: Category): Flow<UiState<CustomResponse<Category>>> = flow {
+    suspend fun getAllCategories(token: String): Flow<UiState<CustomResponse<List<Category>>>> = flow {
+        try {
+            emit(UiState.Loading)
+            val response = categoryApi.getAllCategories(token)
+            if (response.status == "OK") {
+                emit(UiState.Success(response, "Categories retrieved successfully"))
+            } else {
+                emit(UiState.Failed(response.message ?: "Failed to fetch categories"))
+            }
+        } catch (e: Exception) {
+            emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
+        }
+    }
+
+    suspend fun addCategory(token: String, category: List<Category>): Flow<UiState<CustomResponse<List<Category>>>> = flow {
         try {
             emit(UiState.Loading)
             val response = categoryApi.addCategory(token, category)
-            if (response.status == "OK") {
+            if (response.status == "CREATED") {
                 emit(UiState.Success(response, "Category added successfully"))
+
             } else {
                 emit(UiState.Failed(response.message ?: "Failed to add category"))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }

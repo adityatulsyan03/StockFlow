@@ -1,6 +1,5 @@
 package com.example.stockflow.presentation.screens
 
-import android.app.DatePickerDialog
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -17,14 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +40,7 @@ import com.example.stockflow.presentation.components.DatePickerField
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
+import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -51,14 +49,15 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddItemScreen(
     navController: NavController,
-    onSaveClick: (Inventory) -> Unit
+    viewModel: InventoryViewModel
 ) {
     val context = LocalContext.current
 
+    var photo by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var sellPrice by remember { mutableStateOf("") }
-    var sellPriceUnit by remember { mutableStateOf("") }
+    var sellPriceUnit by remember { mutableStateOf("KG") }
     var itemCategory by remember { mutableStateOf("") }
     var mrp by remember { mutableStateOf("") }
     var purchasePrice by remember { mutableStateOf("") }
@@ -68,7 +67,7 @@ fun AddItemScreen(
     var itemDescription by remember { mutableStateOf("") }
     var lowStockAlert by remember { mutableStateOf("") }
     var storageLocation by remember { mutableStateOf("") }
-    var expireDate by remember { mutableStateOf<LocalDate?>(null) }
+    val expireDate by remember { mutableStateOf<LocalDate?>(null) }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -83,24 +82,25 @@ fun AddItemScreen(
         floatingActionButton = {
             FAB(
                 onClick = {
-                    val inventory = Inventory(
-                        photo = null,
-                        name = name,
-                        quantity = quantity.toIntOrNull() ?: 0,
-                        sellPrice = sellPrice.toFloatOrNull() ?: 0f,
-                        sellPriceUnit = sellPriceUnit,
-                        itemCategory = itemCategory,
-                        mrp = mrp.toFloatOrNull() ?: 0f,
-                        purchasePrice = purchasePrice.toFloatOrNull() ?: 0f,
-                        tax = tax.toDoubleOrNull(),
-                        itemCode = itemCode,
-                        barcode = barcode,
-                        itemDescription = itemDescription,
-                        lowStockAlert = lowStockAlert.toIntOrNull(),
-                        storageLocation = storageLocation,
-                        expireDate = expireDate
+                    viewModel.addInventory(
+                        Inventory(
+                            photo = photo,
+                            name = name,
+                            quantity = quantity.toIntOrNull() ?: 0,
+                            sellPrice = sellPrice.toFloatOrNull() ?: 0.0f,
+                            sellPriceUnit = sellPriceUnit,
+                            itemCategory = itemCategory,
+                            mrp = mrp.toFloatOrNull() ?: 0.0f,
+                            purchasePrice = purchasePrice.toFloatOrNull() ?: 0.0f,
+                            tax = tax.toDoubleOrNull() ?: 0.0,
+                            itemCode = itemCode,
+                            barcode = barcode,
+                            itemDescription = itemDescription,
+                            lowStockAlert = lowStockAlert.toIntOrNull() ?: 0,
+                            storageLocation = storageLocation,
+                            expireDate = expireDate?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: ""
+                        )
                     )
-                    onSaveClick(inventory)
                 },
                 modifier = Modifier,
                 text = "ADD",
@@ -210,7 +210,7 @@ fun AddItemScreen(
             item {
                 DropdownTextField(
                     label = "Tax",
-                    options = listOf("GST 5%", "GST 12%", "GST 18%", "GST 28%", "VAT 5%", "VAT 10%", "VAT 15%", "Service Tax", "Sales Tax", "No Tax"),
+                    options = listOf("0.0","5.0", "12.0", "18.0", "28.0"),
                     selectedOption = tax,
                     onOptionSelected = { tax = it },
                     modifier = Modifier.fillMaxWidth()
@@ -270,6 +270,7 @@ fun AddItemScreen(
                 DatePickerField(
                     label = "Expiry Date",
                     selectedDate = remember { mutableStateOf(expireDate) },
+                    onDateSelected = {  }
                 )
             }
         }

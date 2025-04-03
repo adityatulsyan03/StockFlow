@@ -51,6 +51,6 @@ data class Inventory(
     val storageLocation: String? = null,
 
     @SerializedName("expiryDate")
-    val expireDate: LocalDate? = null
+    val expireDate: String? = null
 
 )

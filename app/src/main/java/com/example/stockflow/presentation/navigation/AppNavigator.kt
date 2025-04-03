@@ -1,7 +1,6 @@
 package com.example.stockflow.presentation.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,22 +13,34 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.stockflow.data.model.Bills
+import com.example.stockflow.presentation.screens.AddBillScreen
 import com.example.stockflow.presentation.screens.AddCategoryScreen
 import com.example.stockflow.presentation.screens.AddItemScreen
 import com.example.stockflow.presentation.screens.AddPartyScreen
+import com.example.stockflow.presentation.screens.BillDetailsScreen
+import com.example.stockflow.presentation.screens.BillsScreen
 import com.example.stockflow.presentation.screens.DashBoardScreen
 import com.example.stockflow.presentation.screens.DataTableScreen
 import com.example.stockflow.presentation.screens.EditUserScreen
 import com.example.stockflow.presentation.screens.InventoryScreen
 import com.example.stockflow.presentation.screens.LoginScreen
+import com.example.stockflow.presentation.screens.MoneyReportScreen
 import com.example.stockflow.presentation.screens.PartyScreen
+import com.example.stockflow.presentation.screens.StockReportScreen
+import com.example.stockflow.presentation.screens.TransactionReportScreen
 import com.example.stockflow.presentation.screens.UserScreen
+import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.presentation.viewmodel.ReportViewModel
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -44,7 +55,9 @@ fun AppNavigator(
     val userDetailViewModel: UserDetailViewModel = hiltViewModel()
     val inventoryViewModel: InventoryViewModel = hiltViewModel()
     val partyViewModel: PartyViewModel = hiltViewModel()
-    val categoryViewModel:CategoryViewModel  = hiltViewModel()
+    val categoryViewModel: CategoryViewModel = hiltViewModel()
+    val billViewModel: BillsViewModel = hiltViewModel()
+    val reportViewModel: ReportViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = start) {
 
@@ -71,7 +84,8 @@ fun AppNavigator(
         ) {
             DashBoardScreen(
                 navController = navController,
-                viewModel = userDetailViewModel
+                viewModel = userDetailViewModel,
+                billViewModel = billViewModel
             )
         }
 
@@ -100,9 +114,7 @@ fun AppNavigator(
         ) {
             AddItemScreen(
                 navController = navController,
-                onSaveClick = { inventory ->
-                    Log.d("AddItemScreen", "Inventory: $inventory")
-                }
+                viewModel = inventoryViewModel
             )
         }
 
@@ -111,14 +123,12 @@ fun AppNavigator(
         ) {
             AddPartyScreen(
                 navController = navController,
-                onSaveClick = { party ->
-                    Log.d("AddPartyScreen", "Party: $party")
-                }
+                viewModel = partyViewModel
             )
         }
 
         composable(
-            route = "${Screens.AddCategoryScreen.route}?type={type}",
+            route = "${Screens.AddCategoryScreen.route}/{type}",
             arguments = listOf(navArgument("type") { type = NavType.StringType })
         ) { backStackEntry ->
             val type = backStackEntry.arguments?.getString("type") ?: ""
@@ -143,7 +153,71 @@ fun AppNavigator(
             route = Screens.DayBookReportScreen.route
         ) {
             DataTableScreen(
-                navController
+                navController = navController,
+                viewModel = reportViewModel
+            )
+        }
+
+        composable(
+            route = Screens.BillScreen.route
+        ) {
+            BillsScreen(
+                navController = navController,
+                viewModel = billViewModel
+            )
+        }
+
+        composable(
+            route = Screens.MoneyReportScreen.route
+        ) {
+            MoneyReportScreen(
+                navController = navController,
+                viewModel = reportViewModel
+            )
+        }
+
+        composable(
+            route = Screens.StockReportScreen.route
+        ) {
+            StockReportScreen(
+                navController = navController,
+                viewModel = reportViewModel
+            )
+        }
+
+        composable(
+            route = Screens.TransactionReportScreen.route
+        ) {
+            TransactionReportScreen(
+                navController = navController,
+                viewModel = reportViewModel
+            )
+        }
+
+        composable(
+            route = "${Screens.BillDetailsScreen.route}/{billJson}",
+            arguments = listOf(
+                navArgument("billJson") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val gson = Gson()
+            val billJson = backStackEntry.arguments?.getString("billJson") ?: ""
+            val decodedBillJson = URLDecoder.decode(billJson, StandardCharsets.UTF_8.toString()) // Decode JSON
+            val bill = gson.fromJson(decodedBillJson, Bills::class.java) // Convert JSON back to Bills object
+
+            BillDetailsScreen(
+                navController = navController,
+                viewModel = billViewModel,
+                bill = bill
+            )
+        }
+
+        composable(
+            route = Screens.AddBillScreen.route,
+        ) {
+            AddBillScreen(
+                navController = navController,
+                viewModel = billViewModel,
             )
         }
 

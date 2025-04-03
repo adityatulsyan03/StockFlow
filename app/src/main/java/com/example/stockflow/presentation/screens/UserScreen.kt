@@ -11,9 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,10 +21,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bank
+import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
@@ -34,6 +34,8 @@ import com.example.stockflow.presentation.components.UserDetailItem
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import com.example.stockflow.ui.theme.StockFlowTheme
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun UserScreen(
@@ -41,8 +43,45 @@ fun UserScreen(
     viewModel: UserDetailViewModel
 ) {
 
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            viewModel.getUserData()
+            viewModel.getBankDetails()
+            isRefreshing = false
+        }
+    }
+
     val userState = viewModel.getUserState.collectAsState().value
     val bankState = viewModel.bankState.collectAsState().value
+
+    var user by remember { mutableStateOf<User?>(null) }
+    var bank by remember { mutableStateOf<Bank?>(null) }
+
+    // Fetch user and bank data **only if not already loaded**
+    LaunchedEffect(Unit) {
+        if (userState !is UiState.Success) {
+            viewModel.getUserData()
+        }
+        if (bankState !is UiState.Success) {
+            viewModel.getBankDetails()
+        }
+    }
+
+    LaunchedEffect(userState) {
+        if (userState is UiState.Success) {
+            Log.d("UserScreen", "Updating user from ViewModel state")
+            user = userState.data.data
+        }
+    }
+
+    LaunchedEffect(bankState) {
+        if (bankState is UiState.Success) {
+            Log.d("UserScreen", "Updating bank from ViewModel state")
+            bank = bankState.data.data
+        }
+    }
 
     StockFlowTheme {
         AppScaffold(
@@ -52,9 +91,6 @@ fun UserScreen(
                     navigationIcon = Icons.Outlined.ArrowBackIosNew,
                     onNavigationClick = { navController.popBackStack() },
                     navigationIconContentDescription = "Back",
-                    onTitleClick = {
-                        navController.navigate(Screens.UserScreen.route)
-                    },
                     trailingIcon = Icons.Default.Edit,
                     trailingIconContentDescription = "Edit",
                     onTrailingClick = {
@@ -63,125 +99,137 @@ fun UserScreen(
                 )
             }
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = { isRefreshing = true }
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    when (userState) {
 
-                when (userState){
+                        is UiState.Idle -> {}
 
-                    is UiState.Idle -> {
-                        viewModel.getUserData()
-                    }
+                        is UiState.Success -> {
+                            Log.d("User Data", user?.toString() ?: "No user data")
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    ImageRequest.Builder(LocalContext.current)
+                                        .data(user?.profilePhoto)
+                                        .crossfade(true)
+                                        .build()
+                                ),
+                                contentDescription = "Profile Photo",
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
 
-                    is UiState.Success -> {
-                        val user = userState.data.data
-                        Log.d("User Data",user.toString())
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data(user?.profilePhoto)
-                                    .crossfade(true)
-                                    .build()
-                            ),
-                            contentDescription = "Profile Photo",
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            val details = listOf(
+                                Pair("Business Name", user?.businessName ?: "N/A"),
+                                Pair("Contact Name", user?.contactName ?: "N/A"),
+                                Pair("Contact Number", user?.contactNumber ?: "N/A"),
+                                Pair("Email", user?.email ?: "N/A"),
+                                Pair("Industry", user?.industry ?: "N/A"),
+                                Pair("GST Number", user?.gstNumber ?: "N/A"),
+                                Pair("License Number", user?.licenseNumber ?: "N/A"),
+                                Pair("Address", user?.address ?: "N/A"),
+                                Pair("Postal Code", user?.postalCode.toString())
+                            )
 
-                        val details = listOf(
-                            Pair("Business Name", user?.businessName ?: "N/A"),
-                            Pair("Contact Name", user?.contactName ?: "N/A"),
-                            Pair("Contact Number", user?.contactNumber ?: "N/A"),
-                            Pair("Email", user?.email ?: "N/A"),
-                            Pair("Industry", user?.industry ?: "N/A"),
-                            Pair("GST Number", user?.gstNumber ?: "N/A"),
-                            Pair("License Number", user?.licenseNumber ?: "N/A"),
-                            Pair("Address", user?.address ?: "N/A"),
-                            Pair("Postal Code", user?.postalCode.toString())
-                        )
+                            Text(
+                                text = "User Details",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
 
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)), // Dark card
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                details.forEach {
-                                    UserDetailItem(
-                                        label = it.first, value = it.second
-                                    )
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)), // Dark card
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    details.forEach {
+                                        UserDetailItem(
+                                            label = it.first, value = it.second
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    is UiState.Loading -> {
-                        CircularProgressIndicator()
-                    }
+                        is UiState.Loading -> {
+                            CircularProgressIndicator()
+                        }
 
-                    is UiState.Failed -> {
-                        Text(
-                            text = "Failed to load User details",
-                            fontSize = 16.sp
-                        )
-                    }
-
-                }
-
-                when (bankState){
-
-                    is UiState.Idle -> {
-                        viewModel.getUserData()
-                    }
-
-                    is UiState.Success -> {
-
-                        val bank = bankState.data.data
-
-                        val details = listOf(
-                            Pair("Bank Account Number", bank?.bankAccountNumber ?: "N/A"),
-                            Pair("IFSC Code", bank?.ifscCode ?: "N/A"),
-                            Pair("Account Holder Name", bank?.accountHolderName ?: "N/A"),
-                            Pair("Bank Name", bank?.bankName ?: "N/A"),
-                            Pair("UPI ID", bank?.upiId ?: "N/A")
-                        )
-
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)), // Dark card
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                details.forEach {
-                                    UserDetailItem(
-                                        label = it.first, value = it.second
-                                    )
-                                }
-                            }
+                        is UiState.Failed -> {
+                            Text(
+                                text = "Failed to load User details",
+                                fontSize = 16.sp
+                            )
                         }
                     }
 
-                    is UiState.Loading -> {
-                        CircularProgressIndicator()
-                    }
+                    // Label for Bank Details
+                    Text(
+                        text = "Bank Details",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
 
-                    is UiState.Failed -> {
-                        Text(
-                            text = "Failed to load User details",
-                            fontSize = 16.sp
-                        )
-                    }
+                    when (bankState) {
 
+                        is UiState.Idle -> {
+                            viewModel.getBankDetails()
+                        }
+
+                        is UiState.Success -> {
+
+                            val bankData = bankState.data.data
+
+                            val details = listOf(
+                                Pair("Bank Account Number", bankData?.bankAccountNumber ?: "N/A"),
+                                Pair("IFSC Code", bankData?.ifscCode ?: "N/A"),
+                                Pair("Account Holder Name", bankData?.accountHolderName ?: "N/A"),
+                                Pair("Bank Name", bankData?.bankName ?: "N/A"),
+                                Pair("UPI ID", bankData?.upiId ?: "N/A")
+                            )
+
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)), // Dark card
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    details.forEach {
+                                        UserDetailItem(
+                                            label = it.first, value = it.second
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        is UiState.Loading -> {
+                            CircularProgressIndicator()
+                        }
+
+                        is UiState.Failed -> {
+                            Text(
+                                text = "Failed to load Bank details",
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -71,12 +71,46 @@ class ReportRepo @Inject constructor(
         }
     }
 
-    suspend fun getDaybookReport(token: String, startDate: String, endDate: String): Flow<UiState<CustomResponse<List<DayBookReport>>>> = flow {
+    suspend fun getDaybookReport(token: String, startDate: String, endDate: String): Flow<UiState<CustomResponse<DayBookReport>>> = flow {
         try {
             emit(UiState.Loading)
             val response = reportApi.getDaybookReport(token, startDate, endDate)
             if (response.status == "OK") {
-                emit(UiState.Success(data = response, message = "Daybook report fetched successfully"))
+                val dayBookReportData = response.data
+                var moneyIn = 0.0f
+                var moneyInCash = 0.0f
+                var moneyInCheque = 0.0f
+                var moneyInUPI = 0.0f
+                var moneyOut = 0.0f
+                var moneyOutCash = 0.0f
+                var moneyOutCheque = 0.0f
+                var moneyOutUPI = 0.0f
+
+                dayBookReportData?.forEach {
+                    moneyIn+=it.moneyIn
+                    moneyInCash+=it.moneyInCash
+                    moneyInUPI+=it.moneyInUPI
+                    moneyInCheque+=it.moneyInCheque
+                    moneyOut+=it.moneyOut
+                    moneyOutUPI+=it.moneyOutUPI
+                    moneyOutCheque+=it.moneyOutCheque
+                    moneyOutCash+=it.moneyOutCash
+                }
+                val dayBookReportInOne = DayBookReport(
+                    date = if (startDate!=endDate) "$startDate to $endDate" else startDate,
+                    moneyIn = moneyIn,
+                    moneyInCash = moneyInCash,
+                    moneyInUPI = moneyInUPI,
+                    moneyInCheque = moneyInCheque,
+                    moneyOut = moneyOut,
+                    moneyOutCash = moneyOutCash,
+                    moneyOutUPI = moneyOutUPI,
+                    moneyOutCheque = moneyOutCheque
+                )
+                emit(UiState.Success(data = CustomResponse(
+                    status = "OK",
+                    message = "Daybook report fetched successfully",
+                    data = dayBookReportInOne), message = "Daybook report fetched successfully"))
             } else {
                 emit(UiState.Failed(message = response.message ?: "Failed to fetch daybook report"))
             }

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class Category(
 
     @SerializedName("id")
-    val id: String? = null,
+    val id: String ?= null,
 
     @SerializedName("categoryName")
     val name: String,

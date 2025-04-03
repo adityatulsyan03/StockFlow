@@ -2,38 +2,20 @@ package com.example.stockflow.presentation.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
-import com.example.stockflow.data.model.DayBookReport
+import com.example.stockflow.data.model.MoneyReport
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.DatePickerField
 import com.example.stockflow.presentation.components.DropdownTextField
@@ -44,20 +26,20 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DataTableScreen(
+fun MoneyReportScreen(
     navController: NavController,
     viewModel: ReportViewModel
 ) {
-
     var startDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     var endDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     var dateRange by remember { mutableStateOf("") }
+    var showMoneyIn by remember { mutableStateOf(true) }
     var isCustomDateSelected by remember { mutableStateOf(false) }
 
-    val dayBookReportState by viewModel.daybookReportState.collectAsState()
+    val moneyReportState by viewModel.moneyReportState.collectAsState()
 
     LaunchedEffect(startDate, endDate) {
-        viewModel.getDaybookReport(
+        viewModel.getMoneyReport(
             startDate = startDate?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
             endDate = endDate?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
         )
@@ -67,7 +49,7 @@ fun DataTableScreen(
         contentAlignment = Alignment.TopStart,
         topBar = {
             TopBar(
-                title = "Day Book Report",
+                title = "Money Report",
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
                 onNavigationClick = {
@@ -142,7 +124,31 @@ fun DataTableScreen(
                     }
                 )
             }
-            when (dayBookReportState) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "Show: ",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
+                )
+                Spacer(Modifier.width(8.dp))
+                FilterChip(
+                    selected = !showMoneyIn,
+                    onClick = { showMoneyIn = false },
+                    label = { Text("Money In") }
+                )
+                Spacer(Modifier.width(8.dp))
+                FilterChip(
+                    selected = showMoneyIn,
+                    onClick = { showMoneyIn = true },
+                    label = { Text("Money Out") }
+                )
+            }
+            when (moneyReportState) {
 
                 is UiState.Idle -> {
                     viewModel.getMoneyReport(
@@ -166,12 +172,23 @@ fun DataTableScreen(
                 }
 
                 is UiState.Success -> {
-                    val dayBookReport = (dayBookReportState as UiState.Success).data.data
-                    DayBookReportList(dayBookReports = dayBookReport)
+                    val moneyReports =
+                        (moneyReportState as UiState.Success).data.data ?: emptyList()
+                    val filteredData = moneyReports.filter { it.moneyType == showMoneyIn }
+                    if (filteredData.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "No items found", color = Color.Gray)
+                        }
+                    } else {
+                        MoneyReportList(moneyReports = filteredData)
+                    }
                 }
 
                 is UiState.Failed -> {
-                    val errorMessage = (dayBookReportState as UiState.Failed).message
+                    val errorMessage = (moneyReportState as UiState.Failed).message
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -185,40 +202,33 @@ fun DataTableScreen(
 }
 
 @Composable
-fun DayBookReportList(dayBookReports: DayBookReport?) {
+fun MoneyReportList(moneyReports: List<MoneyReport>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("Field", style = MaterialTheme.typography.bodyLarge, color = Color.White)
-        Text("Value", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        Text("Date", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        Text("Party Name", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        Text("Amount", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        Text("Mode", style = MaterialTheme.typography.bodyLarge, color = Color.White)
     }
 
     Divider(color = Color.Gray, thickness = 1.dp)
 
-    val reports = listOf(
-        "Money In" to dayBookReports?.moneyIn,
-        "Cash In" to dayBookReports?.moneyInCash,
-        "Cheque In" to dayBookReports?.moneyInCheque,
-        "UPI In" to dayBookReports?.moneyInUPI,
-        "Money Out" to dayBookReports?.moneyOut,
-        "Cash Out" to dayBookReports?.moneyOutCash,
-        "Cheque Out" to dayBookReports?.moneyOutCheque,
-        "UPI Out" to dayBookReports?.moneyOutUPI
-    )
-
     LazyColumn {
-        items(reports){ (field, value) ->
+        items(moneyReports) { report ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(field, color = Color.LightGray)
-                Text(value.toString(), color = Color.White)
+                Text(report.date, color = Color.LightGray)
+                Text(report.name, color = Color.White)
+                Text(report.amount, color = if (report.moneyType) Color.Red else Color.Green)
+                Text(report.mode, color = Color.White)
             }
             Divider(color = Color.DarkGray, thickness = 0.5.dp)
         }

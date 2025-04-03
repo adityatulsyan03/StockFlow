@@ -9,21 +9,28 @@ data class Bills(
     @SerializedName("id")
     val id: String,
 
-    @SerializedName("bill_date")
-    val billDate: Date,
+    @SerializedName("billDate")
+    val billDate: String,
 
-    @SerializedName("bill_time")
-    val billTime: Time,
+    @SerializedName("billTime")
+    val billTime: String,
 
     @SerializedName("items")
     val items: List<BillItem>,
 
-    @SerializedName("party_id")
+    @SerializedName("partyId")
     val partyId: String,
 
-    @SerializedName("payment_method")
+    @SerializedName("paymentMethod")
     val paymentMethod: String,
 
-    @SerializedName("total_amount")
-    val totalAmount: Int
+    @SerializedName("totalAmount")
+    val totalAmount: Int,
+
+    @SerializedName("partyName")
+    val partyName: String,
+
+    @SerializedName("isInvoice")
+    val isInvoice: Boolean
+
 )

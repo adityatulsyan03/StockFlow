@@ -33,28 +33,37 @@ fun BankDetails(bank: Bank) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = bank.bankName?:"N/A",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+            if (bank.bankName != null && bank.bankName  != "") {
+                Text(
+                    text = bank.bankName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
 
-            val details = listOf(
-                Pair("Holder Name:", bank.accountHolderName),
-                Pair("Account No:", bank.bankAccountNumber),
-                Pair("IFSC Code:", bank.ifscCode),
-                Pair("UPI ID:", bank.upiId)
-            )
+                val details = listOf(
+                    Pair("Holder Name:", bank.accountHolderName),
+                    Pair("Account No:", bank.bankAccountNumber),
+                    Pair("IFSC Code:", bank.ifscCode),
+                    Pair("UPI ID:", bank.upiId)
+                )
 
-            details.forEach {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = it.first, fontSize = 14.sp, color = Color(0xFFB0BEC5))
-                    Text(text = it.second?:"N/A", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                details.forEach {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = it.first, fontSize = 14.sp, color = Color(0xFFB0BEC5))
+                        Text(text = it.second?: "N/A", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
                 }
+            }else{
+                Text(
+                    text = "No Bank Details Found",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
 
         }

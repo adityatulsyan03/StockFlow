@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,14 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.stockflow.data.model.Bills
 
 @Composable
-fun BillsList() {
-    val bills = listOf(
-        listOf("Aditya", "$30", "17-03-25"),
-        listOf("Sourav", "$50", "17-03-26"),
-        listOf("Rahul", "$20", "17-03-27"),
-    )
+fun BillsList(
+    bills: List<Bills>
+) {
 
     Column(
         modifier = Modifier
@@ -36,8 +35,12 @@ fun BillsList() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(bills.size) { index ->
-                BillCard(name = bills[index][0], amount = bills[index][1], date = bills[index][2])
+            items(bills) {
+                BillCard(
+                    name = it.partyName,
+                    amount = it.totalAmount.toString(),
+                    date = it.billDate
+                )
             }
         }
     }

@@ -26,12 +26,15 @@ data class Party(
     val deliveryAddress: String,
 
     @SerializedName("postalCode")
-    val deliveryPostalCode: String,
+    val deliveryPostalCode: Int,
 
     @SerializedName("gstNumber")
     val gstNumber: String,
 
     @SerializedName("dob")
-    val dob: String
+    val dob: String,
+
+    @SerializedName("whatsappAlerts")
+    val whatsappAlerts: Boolean
 
 )

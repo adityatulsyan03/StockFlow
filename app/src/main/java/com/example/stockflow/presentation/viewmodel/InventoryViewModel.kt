@@ -50,6 +50,7 @@ class InventoryViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 Log.e("InventoryViewModel", "Error adding inventory: ${e.message}")
                 _addInventoryState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }

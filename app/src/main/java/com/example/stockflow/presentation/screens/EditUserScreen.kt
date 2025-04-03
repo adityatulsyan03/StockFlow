@@ -36,15 +36,19 @@ fun EditUserScreen(
 
     LaunchedEffect(userState) {
         if (userState is UiState.Success) {
-            Log.d("Edi","userState User")
+            Log.d("EditUserScreen", "User data loaded successfully.")
             user = (userState as UiState.Success<CustomResponse<User>>).data.data
+        } else if (userState is UiState.Failed) {
+            Log.e("EditUserScreen", "Failed to load user data.")
         }
     }
 
     LaunchedEffect(bankState) {
         if (bankState is UiState.Success) {
-            Log.d("Edi","userState Bank")
+            Log.d("EditUserScreen", "Bank data loaded successfully.")
             bank = (bankState as UiState.Success<CustomResponse<Bank>>).data.data
+        } else if (bankState is UiState.Failed) {
+            Log.e("EditUserScreen", "Failed to load bank data.")
         }
     }
 
@@ -53,7 +57,10 @@ fun EditUserScreen(
             TopBar(
                 title = "Edit User",
                 navigationIcon = Icons.Default.ArrowBackIosNew,
-                onNavigationClick = { navController.popBackStack() },
+                onNavigationClick = {
+                    Log.d("EditUserScreen", "Navigating back.")
+                    navController.popBackStack()
+                },
             )
         }
     ) {
@@ -61,11 +68,13 @@ fun EditUserScreen(
             userState is UiState.Loading || bankState is UiState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
+                    Log.d("EditUserScreen", "Loading user and bank data...")
                 }
             }
 
             userState is UiState.Failed || bankState is UiState.Failed -> {
                 Text("Failed to load data", color = Color.Red, fontSize = 18.sp)
+                Log.e("EditUserScreen", "Error while loading data.")
             }
 
             user != null && bank != null -> {
@@ -103,6 +112,7 @@ fun EditUserForm(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        Text("User Details", fontSize = 18.sp, color = Color.White, modifier = Modifier.padding(bottom = 8.dp))
         CustomTextField(label = "Business Name", value = businessName) { businessName = it }
         CustomTextField(label = "Contact Name", value = contactName) { contactName = it }
         CustomTextField(label = "Contact Number", value = contactNumber, keyboardType = KeyboardType.Phone) { contactNumber = it }
@@ -125,6 +135,7 @@ fun EditUserForm(
 
         Button(
             onClick = {
+                Log.d("EditUserScreen", "Saving changes for user and bank.")
                 val updatedUser = user.copy(
                     businessName = businessName,
                     contactName = contactName,
@@ -146,9 +157,8 @@ fun EditUserForm(
 
                 viewModel.updateUser(updatedUser)
                 viewModel.updateBank(updatedBank)
-                viewModel.getUserData()
-                viewModel.getBankDetails()
 
+                Log.d("EditUserScreen", "Changes saved, navigating back.")
                 navController.popBackStack()
             },
             modifier = Modifier.fillMaxWidth()
@@ -167,7 +177,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        value = value?:"",
+        value = value ?: "",
         onValueChange = onValueChange,
         label = { Text(label, color = Color.White) },
         textStyle = LocalTextStyle.current.copy(color = Color.White),

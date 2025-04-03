@@ -20,12 +20,7 @@ class BankRepo @Inject constructor(
             if (response.status == "OK") {
                 emit(UiState.Success(data = response, message = "Bank data retrieved successfully"))
                 Log.d("Bank Data OK", response.data.toString())
-            }
-            if (response.status == "NOT_FOUND") {
-                emit(UiState.Failed(message = response.message ?: "Bank details not found for user"))
-                Log.d("Bank Data NOT_FOUND", response.message.toString())
-            }
-            else {
+            } else {
                 emit(UiState.Failed(message = response.message ?: "An unexpected error occurred"))
                 Log.d("Bank Data Failed", response.message.toString())
             }

@@ -7,7 +7,10 @@ data class StockReport(
     @SerializedName("id")
     val id: String,
 
-    @SerializedName("item_name")
+    @SerializedName("inventoryId")
+    val inventoryId: String,
+
+    @SerializedName("inventoryName")
     val itemName: String,
 
     @SerializedName("purchased")
@@ -16,9 +19,9 @@ data class StockReport(
     @SerializedName("sold")
     val sold: String,
 
-    @SerializedName("left_stock")
-    val leftStock: String,
+    @SerializedName("leftStock")
+    val leftStock: String
 
-    @SerializedName("price")
-    val price: String
+//    @SerializedName("price")
+//    val price: String
 )

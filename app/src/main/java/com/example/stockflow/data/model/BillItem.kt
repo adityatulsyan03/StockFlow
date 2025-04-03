@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class BillItem(
 
     @SerializedName("id")
-    val id: String,
+    val id: String ?= null,
 
     @SerializedName("name")
     val name: String,

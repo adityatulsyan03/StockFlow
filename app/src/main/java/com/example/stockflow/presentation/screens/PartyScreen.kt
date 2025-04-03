@@ -46,7 +46,7 @@ fun PartyScreen(
                             restoreState = true
                         }
                     } else {
-                        navController.navigate("${Screens.AddCategoryScreen.route}?type=$type") {
+                        navController.navigate("${Screens.AddCategoryScreen.route}/$type") {
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -80,7 +80,7 @@ fun PartyScreen(
             ) {
                 when (selectedTabIndex) {
                     0 -> PartyList(viewModel)
-                    1 -> CategoryList("Party", categoryViewModel)
+                    1 -> CategoryList("PARTY", categoryViewModel)
                 }
             }
         }

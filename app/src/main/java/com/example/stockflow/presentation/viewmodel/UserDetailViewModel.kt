@@ -51,12 +51,13 @@ class UserDetailViewModel @Inject constructor(
     val deleteUserState = _deleteUserState.asStateFlow()
 
     fun getUserData() {
+
         _getUserState.value = UiState.Loading
 
         viewModelScope.launch {
             try {
                 val token = userRepo.getIdToken()
-                Log.d("LoginViewModel", "Token: $token")
+                Log.d("UserDetailViewModel", "Fetching user data with token: $token")
                 userRepo.getUser(token).collect { response ->
                     _getUserState.value = response
                 }
@@ -91,7 +92,7 @@ class UserDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val token = userRepo.getIdToken()
-                Log.d("LoginViewModel", "Token: $token")
+                Log.d("UserDetailViewModel", "Updating user data with token: $token")
                 userRepo.updateUser(token, user).collect { response ->
                     _updateUserState.value = response
                 }

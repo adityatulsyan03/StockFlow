@@ -1,37 +1,36 @@
 package com.example.stockflow.data.model
 
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDate
 
 data class DayBookReport(
 
     @SerializedName("id")
-    val id: String,
+    val id: String ?= null,
 
     @SerializedName("date")
-    val date: LocalDate,
+    val date: String,
 
-    @SerializedName("money_in")
-    val moneyIn: Int,
+    @SerializedName("moneyIn")
+    val moneyIn: Float,
 
-    @SerializedName("money_in_cash")
-    val moneyInCash: Int,
+    @SerializedName("moneyInCash")
+    val moneyInCash: Float,
 
-    @SerializedName("money_in_cheque")
-    val moneyInCheque: Int,
+    @SerializedName("moneyInCheque")
+    val moneyInCheque: Float,
 
-    @SerializedName("money_in_upi")
-    val moneyInUPI: Int,
+    @SerializedName("moneyInUpi")
+    val moneyInUPI: Float,
 
-    @SerializedName("money_out")
-    val moneyOut: Int,
+    @SerializedName("moneyOut")
+    val moneyOut: Float,
 
-    @SerializedName("money_out_cash")
-    val moneyOutCash: Int,
+    @SerializedName("moneyOutCash")
+    val moneyOutCash: Float,
 
-    @SerializedName("money_out_cheque")
-    val moneyOutCheque: Int,
+    @SerializedName("moneyOutCheque")
+    val moneyOutCheque: Float,
 
-    @SerializedName("money_out_upi")
-    val moneyOutUPI: Int
+    @SerializedName("moneyOutUpi")
+    val moneyOutUPI: Float
 )
