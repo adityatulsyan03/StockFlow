@@ -120,7 +120,7 @@ fun BillsScreen(
                                                 )
 
                                                 navController.navigate("${Screens.BillDetailsScreen.route}/$encodedBillJson")
-                                                Log.d("BillsScreen", bill.id)
+                                                Log.d("BillsScreen", bill.id?:"No Id Found")
                                             }
                                         )
                                     }

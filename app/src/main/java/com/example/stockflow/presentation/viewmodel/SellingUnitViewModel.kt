@@ -50,7 +50,7 @@ class SellingUnitViewModel @Inject constructor(
         }
     }
 
-    fun postSellingUnit(sellingUnit: SellingUnit) {
+    fun postSellingUnit(sellingUnit: List<SellingUnit>) {
         _postSellingUnitState.value = UiState.Loading
 
         viewModelScope.launch {

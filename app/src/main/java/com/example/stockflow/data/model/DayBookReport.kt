@@ -19,7 +19,7 @@ data class DayBookReport(
     @SerializedName("moneyInCheque")
     val moneyInCheque: Float,
 
-    @SerializedName("moneyInUpi")
+    @SerializedName("moneyInUPI")
     val moneyInUPI: Float,
 
     @SerializedName("moneyOut")
@@ -31,6 +31,6 @@ data class DayBookReport(
     @SerializedName("moneyOutCheque")
     val moneyOutCheque: Float,
 
-    @SerializedName("moneyOutUpi")
+    @SerializedName("moneyOutUPI")
     val moneyOutUPI: Float
 )

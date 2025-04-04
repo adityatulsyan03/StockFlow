@@ -33,7 +33,7 @@ data class Inventory(
     val purchasePrice: Float,
 
     @SerializedName("tax")
-    val tax: Double? = null,
+    val tax: Float? = null,
 
     @SerializedName("itemCode")
     val itemCode: String? = null,

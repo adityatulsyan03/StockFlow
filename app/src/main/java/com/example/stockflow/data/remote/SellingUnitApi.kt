@@ -14,7 +14,7 @@ interface SellingUnitApi {
     @POST("/unit")
     suspend fun postSellingUnit(
         @Header ("Authorization") token: String,
-        @Body sellingUnit: SellingUnit
+        @Body sellingUnit: List<SellingUnit>
     ): CustomResponse<List<SellingUnit>>
  
     @DELETE("/unit/{unitId}")

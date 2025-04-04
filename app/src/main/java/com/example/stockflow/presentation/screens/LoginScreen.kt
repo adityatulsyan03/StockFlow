@@ -114,24 +114,6 @@ fun LoginScreen(
             ) {
                 Text(text = "Log In")
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (user != null) {
-
-                Button(
-                    onClick = {
-                        Firebase.auth.signOut()
-                        Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT).show()
-                    },
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E1E1E), // Hardcoded Button Color
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(text = "Logout")
-                }
-            }
         }
     }
 }

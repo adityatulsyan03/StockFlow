@@ -41,20 +41,19 @@ fun PartyList(viewModel: PartyViewModel) {
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = { isRefreshing = true }
     ) {
-        Text(
-            text = "PARTY LIST",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = { isRefreshing = true }
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
+            Text(
+                text = "PARTY LIST",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             when (partiesState) {
                 is UiState.Loading -> {
                     Box(
@@ -86,8 +85,8 @@ fun PartyList(viewModel: PartyViewModel) {
                                 val party = parties[index]
                                 PartyCard(
                                     name = party.name,
-                                    number = party.phone,
-                                    amount = "₹54" // Assuming `amount` is a field in `Party`
+                                    number = party.phone
+                                    //Amount Section
                                 )
                             }
                         }
@@ -116,7 +115,7 @@ fun PartyList(viewModel: PartyViewModel) {
 }
 
 @Composable
-fun PartyCard(name: String, number: String, amount: String) {
+fun PartyCard(name: String, number: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,11 +137,5 @@ fun PartyCard(name: String, number: String, amount: String) {
                 color = Color(0xFFB0BEC5) // Light gray for balance
             )
         }
-
-        Text(
-            text = amount,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFFB0BEC5) // Keeping amount in contrast color
-        )
     }
 }

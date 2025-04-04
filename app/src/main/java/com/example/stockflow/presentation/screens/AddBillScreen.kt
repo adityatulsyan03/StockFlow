@@ -21,11 +21,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.BillItem
 import com.example.stockflow.data.model.Bills
+import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.Inventory
+import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.components.*
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
+import com.example.stockflow.presentation.viewmodel.InventoryViewModel
+import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -34,113 +40,71 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddBillScreen(
     navController: NavController,
-    viewModel: BillsViewModel
+    viewModel: BillsViewModel,
+    partyViewModel: PartyViewModel,
+    inventoryViewModel: InventoryViewModel
 ) {
-    val context = LocalContext.current
+    val partyState by partyViewModel.getAllPartiesState.collectAsState()
+    val inventoryState by inventoryViewModel.getAllInventoriesState.collectAsState()
 
-    val parties by remember { mutableStateOf<List<Inventory>?>(emptyList()) }
-//    val inventories by remember { mutableStateOf<List<Inventory>?>(emptyList()) }
+    LaunchedEffect(Unit) {
+        if (partyState is UiState.Idle) {
+            partyViewModel.getAllParties()
+        }
+        if (inventoryState is UiState.Idle) {
+            inventoryViewModel.getAllInventories()
+        }
+    }
 
-    val inventories = listOf(
-        Inventory(
-            id = "1",
-            photo = null,
-            name = "Apple",
-            quantity = 50,
-            sellPrice = 120.0f,
-            sellPriceUnit = "kg",
-            itemCategory = "Fruits",
-            mrp = 150.0f,
-            purchasePrice = 100.0f,
-            tax = 5.0,
-            itemCode = "APL123",
-            barcode = "1234567890123",
-            itemDescription = "Fresh apples from Kashmir",
-            lowStockAlert = 10,
-            storageLocation = "Shelf A1",
-            expireDate = "2025-12-31"
-        ),
-        Inventory(
-            id = "2",
-            photo = null,
-            name = "Milk",
-            quantity = 20,
-            sellPrice = 50.0f,
-            sellPriceUnit = "liter",
-            itemCategory = "Dairy",
-            mrp = 60.0f,
-            purchasePrice = 45.0f,
-            tax = 2.5,
-            itemCode = "MLK456",
-            barcode = "9876543210987",
-            itemDescription = "Pure cow milk",
-            lowStockAlert = 5,
-            storageLocation = "Refrigerator",
-            expireDate = "2024-06-15"
-        ),
-        Inventory(
-            id = "3",
-            photo = null,
-            name = "Bread",
-            quantity = 30,
-            sellPrice = 35.0f,
-            sellPriceUnit = "pack",
-            itemCategory = "Bakery",
-            mrp = 40.0f,
-            purchasePrice = 30.0f,
-            tax = 1.5,
-            itemCode = "BRD789",
-            barcode = "3216549870123",
-            itemDescription = "Whole wheat bread",
-            lowStockAlert = 8,
-            storageLocation = "Shelf B2",
-            expireDate = "2024-04-10"
-        ),
-        Inventory(
-            id = "4",
-            photo = null,
-            name = "Rice",
-            quantity = 100,
-            sellPrice = 80.0f,
-            sellPriceUnit = "kg",
-            itemCategory = "Grains",
-            mrp = 90.0f,
-            purchasePrice = 70.0f,
-            tax = 5.0,
-            itemCode = "RCE321",
-            barcode = "4561237890123",
-            itemDescription = "Basmati rice",
-            lowStockAlert = 20,
-            storageLocation = "Warehouse Section C",
-            expireDate = "2026-01-01"
-        ),
-        Inventory(
-            id = "5",
-            photo = null,
-            name = "Eggs",
-            quantity = 60,
-            sellPrice = 6.0f,
-            sellPriceUnit = "piece",
-            itemCategory = "Poultry",
-            mrp = 8.0f,
-            purchasePrice = 5.0f,
-            tax = 1.0,
-            itemCode = "EGG654",
-            barcode = "7894561230987",
-            itemDescription = "Farm fresh eggs",
-            lowStockAlert = 12,
-            storageLocation = "Cold Storage",
-            expireDate = "2024-05-20"
-        )
-    )
+    if (partyState is UiState.Loading || inventoryState is UiState.Loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
-    val billDate by remember { mutableStateOf(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))}
-    val billTime by remember { mutableStateOf(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")))}
+    if (partyState is UiState.Failed || inventoryState is UiState.Failed) {
+        val errorMessage = (partyState as? UiState.Failed)?.message
+            ?: (inventoryState as? UiState.Failed)?.message
+            ?: "Something went wrong!"
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = errorMessage, color = Color.Red)
+        }
+        return
+    }
+
+    if (partyState is UiState.Success && inventoryState is UiState.Success) {
+        val parties = (partyState as UiState.Success).data.data ?: emptyList()
+        val inventories = (inventoryState as UiState.Success).data.data ?: emptyList()
+
+        AddBillScreenUI(navController, viewModel, parties, inventories)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun AddBillScreenUI(
+    navController: NavController,
+    viewModel: BillsViewModel,
+    parties: List<Party>,
+    inventories: List<Inventory>
+) {
+
     var partyName by remember { mutableStateOf("") }
-    val partyId by remember { mutableStateOf("") }
-    var paymentMethod by remember { mutableStateOf("Cash") }
-    val totalAmount by remember { mutableStateOf("") }
+    val billDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    val billTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+    var partyId by remember { mutableStateOf("") }
+    var paymentMethod by remember { mutableStateOf("CASH") }
+    var totalAmount by remember { mutableStateOf(0.0f) }
     var items by remember { mutableStateOf(listOf<BillItem>()) }
+    var isInvoice by remember { mutableStateOf(false) }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -157,18 +121,16 @@ fun AddBillScreen(
                 onClick = {
                     viewModel.postBill(
                         Bills(
-                            id = System.currentTimeMillis().toString(),
                             billDate = billDate,
                             billTime = billTime,
                             items = items,
                             partyId = partyId,
                             paymentMethod = paymentMethod,
-                            totalAmount = totalAmount.toIntOrNull() ?: 0,
+                            totalAmount = totalAmount,
                             partyName = partyName,
-                            isInvoice = true
+                            isInvoice = isInvoice
                         )
                     )
-                    Toast.makeText(context, "Bill Added", Toast.LENGTH_SHORT).show()
                     navController.popBackStack()
                 },
                 text = "ADD",
@@ -182,18 +144,68 @@ fun AddBillScreen(
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             item {
+                var isDropdownExpanded by remember { mutableStateOf(false) }
+
+                val filteredItems = parties.filter { it.name.contains(partyName, ignoreCase = true) }
                 OutlinedTextField(
                     value = partyName,
-                    onValueChange = { partyName = it },
+                    onValueChange = {
+                        partyName = it
+                        isDropdownExpanded = it.isNotEmpty()
+                    },
                     label = { Text("Party Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (isDropdownExpanded) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Color.Gray)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .padding(4.dp)
+                        ) {
+                            if (filteredItems.isNotEmpty()) {
+                                items(filteredItems.size) { index ->
+                                    val partyItem = filteredItems[index]
+                                    Text(
+                                        text = partyItem.name,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                partyName = partyItem.name
+                                                isDropdownExpanded = false
+                                                partyId = partyItem.id?:""
+                                                isInvoice = partyItem.customerSupplier
+                                            }
+                                            .padding(8.dp),
+                                        color = Color.White
+                                    )
+                                    Divider(color = Color.Gray, thickness = 0.5.dp)
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        text = "No party",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        color = Color.Red
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             item {
                 DropdownTextField(
                     label = "Payment Method",
-                    options = listOf("Cash", "Cheque", "UPI"),
+                    options = listOf("CASH", "CHEQUE", "UPI"),
                     selectedOption = paymentMethod,
                     onOptionSelected = { paymentMethod = it },
                     modifier = Modifier.fillMaxWidth()
@@ -211,12 +223,21 @@ fun AddBillScreen(
             items(items.size) { index ->
                 BillItemRow(
                     item = items[index],
-                    onUpdate = { newName, newQuantity ->
+                    onUpdate = { newName, newQuantity->
                         items = items.toMutableList().apply {
-                            this[index] = this[index].copy(name = newName, quantity = newQuantity)
+                            val t = (inventories.find { it.name == newName }?.sellPrice ?: 0.0f) * (newQuantity.toIntOrNull() ?: 0)
+                            this[index] = this[index].copy(
+                                id = inventories.find { it.name == newName }?.id ?: "",
+                                name = newName,
+                                quantity = newQuantity.toIntOrNull() ?: 0,
+                                price = inventories.find { it.name == newName }?.sellPrice ?: 0.0f,
+                                totalPrice = t + t*(inventories.find { it.name == newName }?.tax ?: 0.0f)
+                            )
                         }
+                        totalAmount += items[index].totalPrice
                     },
                     onRemove = {
+                        totalAmount -= items[index].totalPrice
                         items = items.toMutableList().apply { removeAt(index) }
                     },
                     inventories = inventories
@@ -228,8 +249,9 @@ fun AddBillScreen(
                     onClick = {
                         items = items + BillItem(
                             name = "",
-                            quantity = "",
-                            price = 0
+                            quantity = 0,
+                            price = 0.0f,
+                            totalPrice = 0.0f
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -246,15 +268,15 @@ fun BillItemRow(
     item: BillItem,
     onUpdate: (String, String) -> Unit,
     onRemove: () -> Unit,
-    inventories: List<Inventory>? // List of inventory items
+    inventories: List<Inventory>
 ) {
     var name by remember { mutableStateOf(item.name) }
-    var quantity by remember { mutableStateOf(item.quantity) }
+    var quantity by remember { mutableStateOf(item.quantity.toString()) }
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
-    val filteredItems = inventories?.filter { it.name.contains(name, ignoreCase = true) } ?: emptyList()
+    val filteredItems = inventories.filter { it.name.contains(name, ignoreCase = true) }
 
-    Row( // ✅ Use Row to align elements horizontally
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
@@ -286,7 +308,7 @@ fun BillItemRow(
                             .fillMaxWidth()
                             .heightIn(max = 200.dp) // ✅ Fixed height to avoid infinite constraints
                             .padding(4.dp)
-                    ) {
+                    ){
                         if (filteredItems.isNotEmpty()) {
                             items(filteredItems.size) { index ->
                                 val inventoryItem = filteredItems[index]
@@ -296,7 +318,7 @@ fun BillItemRow(
                                         .fillMaxWidth()
                                         .clickable {
                                             name = inventoryItem.name
-                                            quantity = "1" // Default quantity
+                                            quantity = "0" // Default quantity
                                             onUpdate(inventoryItem.name, quantity)
                                             isDropdownExpanded = false // Hide dropdown
                                         }

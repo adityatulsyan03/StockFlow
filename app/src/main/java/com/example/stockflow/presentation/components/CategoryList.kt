@@ -31,22 +31,21 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = { isRefreshing = true } // Trigger refresh
     ) {
-        Text(
-            text = "CATEGORIES",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = { isRefreshing = true } // Trigger refresh
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
+            Text(
+                text = "CATEGORIES",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             when (categoryState) {
                 is UiState.Loading -> {
                     CircularProgressIndicator(

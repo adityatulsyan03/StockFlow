@@ -30,7 +30,7 @@ class SellingUnitRepo @Inject constructor(
         }
     }
 
-    suspend fun postSellingUnit(token: String, sellingUnit: SellingUnit): Flow<UiState<CustomResponse<List<SellingUnit>>>> = flow {
+    suspend fun postSellingUnit(token: String, sellingUnit: List<SellingUnit>): Flow<UiState<CustomResponse<List<SellingUnit>>>> = flow {
         try {
             emit(UiState.Loading)
             val response = sellingUnitApi.postSellingUnit(token, sellingUnit)

@@ -7,7 +7,7 @@ import java.sql.Time
 data class Bills(
 
     @SerializedName("id")
-    val id: String,
+    val id: String ?= null,
 
     @SerializedName("billDate")
     val billDate: String,
@@ -25,7 +25,7 @@ data class Bills(
     val paymentMethod: String,
 
     @SerializedName("totalAmount")
-    val totalAmount: Int,
+    val totalAmount: Float,
 
     @SerializedName("partyName")
     val partyName: String,

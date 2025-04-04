@@ -4,16 +4,19 @@ import com.google.gson.annotations.SerializedName
 
 data class BillItem(
 
-    @SerializedName("id")
+    @SerializedName("inventoryId")
     val id: String ?= null,
 
     @SerializedName("name")
     val name: String,
 
     @SerializedName("quantity")
-    val quantity: String,
+    val quantity: Int,
 
     @SerializedName("price")
-    val price: Int,
+    val price: Float,
+
+    @SerializedName("totalPrice")
+    val totalPrice: Float
 
 )

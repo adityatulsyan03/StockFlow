@@ -59,7 +59,6 @@ fun DashBoardScreen(
     viewModel: UserDetailViewModel,
     billViewModel: BillsViewModel
 ) {
-
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRefreshing) {

@@ -18,6 +18,7 @@ import com.example.stockflow.presentation.screens.AddBillScreen
 import com.example.stockflow.presentation.screens.AddCategoryScreen
 import com.example.stockflow.presentation.screens.AddItemScreen
 import com.example.stockflow.presentation.screens.AddPartyScreen
+import com.example.stockflow.presentation.screens.AddSellingUnitScreen
 import com.example.stockflow.presentation.screens.BillDetailsScreen
 import com.example.stockflow.presentation.screens.BillsScreen
 import com.example.stockflow.presentation.screens.DashBoardScreen
@@ -35,6 +36,7 @@ import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
 import com.example.stockflow.presentation.viewmodel.ReportViewModel
+import com.example.stockflow.presentation.viewmodel.SellingUnitViewModel
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -58,6 +60,7 @@ fun AppNavigator(
     val categoryViewModel: CategoryViewModel = hiltViewModel()
     val billViewModel: BillsViewModel = hiltViewModel()
     val reportViewModel: ReportViewModel = hiltViewModel()
+    val sellingUnitViewModel: SellingUnitViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = start) {
 
@@ -114,7 +117,17 @@ fun AppNavigator(
         ) {
             AddItemScreen(
                 navController = navController,
-                viewModel = inventoryViewModel
+                viewModel = inventoryViewModel,
+                sellingUnitViewModel = sellingUnitViewModel
+            )
+        }
+
+        composable(
+            route = Screens.AddSellingUnit.route
+        ){
+            AddSellingUnitScreen(
+                navController = navController,
+                viewModel = sellingUnitViewModel
             )
         }
 
@@ -218,6 +231,8 @@ fun AppNavigator(
             AddBillScreen(
                 navController = navController,
                 viewModel = billViewModel,
+                partyViewModel = partyViewModel,
+                inventoryViewModel = inventoryViewModel
             )
         }
 
