@@ -1,7 +1,7 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.reports
 
 import android.os.Build
-import android.widget.Toast
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,21 +17,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.BillItem
 import com.example.stockflow.data.model.Bills
-import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.Inventory
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.components.*
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
-import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -44,6 +41,8 @@ fun AddBillScreen(
     partyViewModel: PartyViewModel,
     inventoryViewModel: InventoryViewModel
 ) {
+    Log.d("Screen","Add Bill Screen")
+
     val partyState by partyViewModel.getAllPartiesState.collectAsState()
     val inventoryState by inventoryViewModel.getAllInventoriesState.collectAsState()
 

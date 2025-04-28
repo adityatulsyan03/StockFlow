@@ -31,9 +31,12 @@ class CategoryViewModel @Inject constructor(
     private val _deleteCategoryState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteCategoryState = _deleteCategoryState.asStateFlow()
 
-    private val _getCategoriesState =
-        MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
+    private val _getCategoriesState = MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
     val getCategoriesState = _getCategoriesState.asStateFlow()
+
+    fun resetAddCategoryState() {
+        _addCategoryState.value = UiState.Idle
+    }
 
     fun addCategory(category: List<Category>) {
         _addCategoryState.value = UiState.Loading

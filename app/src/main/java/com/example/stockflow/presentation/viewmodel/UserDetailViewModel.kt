@@ -22,9 +22,23 @@ class UserDetailViewModel @Inject constructor(
     private val bankRepo: BankRepo
 ): ViewModel() {
 
-    private val _adduser: MutableStateFlow<UiState<CustomResponse<User>>> =
-        MutableStateFlow(UiState.Idle)
+    private val _adduser: MutableStateFlow<UiState<CustomResponse<User>>> = MutableStateFlow(UiState.Idle)
     val adduser = _adduser.asStateFlow()
+
+    private val _getUserState = MutableStateFlow<UiState<CustomResponse<User>>>(UiState.Idle)
+    val getUserState = _getUserState.asStateFlow()
+
+    private val _deleteUserState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
+    val deleteUserState = _deleteUserState.asStateFlow()
+
+    private val _updateUserState = MutableStateFlow<UiState<CustomResponse<User>>>(UiState.Idle)
+    val updateUserState = _updateUserState.asStateFlow()
+
+    private val _bankState = MutableStateFlow<UiState<CustomResponse<Bank>>>(UiState.Idle)
+    val bankState = _bankState.asStateFlow()
+
+    private val _updateBankState = MutableStateFlow<UiState<CustomResponse<Bank>>>(UiState.Idle)
+    val updateBankState = _updateBankState.asStateFlow()
 
     fun addUser(accessToken: AccessTokenBody){
         _adduser.value = UiState.Loading
@@ -43,12 +57,6 @@ class UserDetailViewModel @Inject constructor(
             }
         }
     }
-
-    private val _getUserState = MutableStateFlow<UiState<CustomResponse<User>>>(UiState.Idle)
-    val getUserState = _getUserState.asStateFlow()
-
-    private val _deleteUserState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
-    val deleteUserState = _deleteUserState.asStateFlow()
 
     fun getUserData() {
 
@@ -83,9 +91,6 @@ class UserDetailViewModel @Inject constructor(
         }
     }
 
-    private val _updateUserState = MutableStateFlow<UiState<CustomResponse<User>>>(UiState.Idle)
-    val updateUserState = _updateUserState.asStateFlow()
-
     fun updateUser(user: User) {
         _updateUserState.value = UiState.Loading
 
@@ -101,12 +106,6 @@ class UserDetailViewModel @Inject constructor(
             }
         }
     }
-
-    private val _bankState = MutableStateFlow<UiState<CustomResponse<Bank>>>(UiState.Idle)
-    val bankState = _bankState.asStateFlow()
-
-    private val _updateBankState = MutableStateFlow<UiState<CustomResponse<Bank>>>(UiState.Idle)
-    val updateBankState = _updateBankState.asStateFlow()
 
     fun getBankDetails() {
         _bankState.value = UiState.Loading

@@ -1,6 +1,7 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.reports
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,11 +18,8 @@ import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.StockReport
 import com.example.stockflow.presentation.components.AppScaffold
-import com.example.stockflow.presentation.components.DatePickerField
-import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.ReportViewModel
-import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -29,6 +27,8 @@ fun StockReportScreen(
     navController: NavController,
     viewModel: ReportViewModel
 ) {
+    Log.d("Screen","Stock Report Screen")
+
     val stockReportState by viewModel.stockReportState.collectAsState()
 
     AppScaffold(

@@ -14,23 +14,28 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.stockflow.data.model.Bills
-import com.example.stockflow.presentation.screens.AddBillScreen
-import com.example.stockflow.presentation.screens.AddCategoryScreen
-import com.example.stockflow.presentation.screens.AddItemScreen
-import com.example.stockflow.presentation.screens.AddPartyScreen
-import com.example.stockflow.presentation.screens.AddSellingUnitScreen
-import com.example.stockflow.presentation.screens.BillDetailsScreen
-import com.example.stockflow.presentation.screens.BillsScreen
-import com.example.stockflow.presentation.screens.DashBoardScreen
-import com.example.stockflow.presentation.screens.DataTableScreen
-import com.example.stockflow.presentation.screens.EditUserScreen
-import com.example.stockflow.presentation.screens.InventoryScreen
-import com.example.stockflow.presentation.screens.LoginScreen
-import com.example.stockflow.presentation.screens.MoneyReportScreen
-import com.example.stockflow.presentation.screens.PartyScreen
-import com.example.stockflow.presentation.screens.StockReportScreen
-import com.example.stockflow.presentation.screens.TransactionReportScreen
-import com.example.stockflow.presentation.screens.UserScreen
+import com.example.stockflow.data.model.Inventory
+import com.example.stockflow.data.model.Party
+import com.example.stockflow.presentation.screens.reports.AddBillScreen
+import com.example.stockflow.presentation.screens.category.AddCategoryScreen
+import com.example.stockflow.presentation.screens.inventory.AddItemScreen
+import com.example.stockflow.presentation.screens.inventory.EditItemScreen
+import com.example.stockflow.presentation.screens.party.AddPartyScreen
+import com.example.stockflow.presentation.screens.user.AddSellingUnitScreen
+import com.example.stockflow.presentation.screens.reports.BillDetailsScreen
+import com.example.stockflow.presentation.screens.reports.BillsScreen
+import com.example.stockflow.presentation.screens.user.DashBoardScreen
+import com.example.stockflow.presentation.screens.reports.DataTableScreen
+import com.example.stockflow.presentation.screens.user.EditUserScreen
+import com.example.stockflow.presentation.screens.inventory.InventoryScreen
+import com.example.stockflow.presentation.screens.inventory.ItemDetailScreen
+import com.example.stockflow.presentation.screens.party.PartyDetailScreen
+import com.example.stockflow.presentation.screens.user.LoginScreen
+import com.example.stockflow.presentation.screens.reports.MoneyReportScreen
+import com.example.stockflow.presentation.screens.party.PartyScreen
+import com.example.stockflow.presentation.screens.reports.StockReportScreen
+import com.example.stockflow.presentation.screens.reports.TransactionReportScreen
+import com.example.stockflow.presentation.screens.user.UserScreen
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
@@ -118,7 +123,8 @@ fun AppNavigator(
             AddItemScreen(
                 navController = navController,
                 viewModel = inventoryViewModel,
-                sellingUnitViewModel = sellingUnitViewModel
+                sellingUnitViewModel = sellingUnitViewModel,
+                categoryViewModel = categoryViewModel
             )
         }
 
@@ -132,12 +138,52 @@ fun AppNavigator(
         }
 
         composable(
+            route = "${Screens.ItemDetailScreen.route}/{itemJson}",
+            arguments = listOf(navArgument("itemJson") {type = NavType.StringType })
+        ){backStackEntry ->
+
+            val gson = Gson()
+            val itemJson = backStackEntry.arguments?.getString("itemJson") ?: ""
+            val decodedItemJson = URLDecoder.decode(itemJson,StandardCharsets.UTF_8.toString())
+            val item = gson.fromJson(decodedItemJson,Inventory::class.java)
+
+            ItemDetailScreen(item = item,navController = navController)
+
+        }
+
+        composable(
+            route = "${Screens.EditItemScreen.route}/{itemJson}",
+            arguments = listOf(navArgument("itemJson") {type = NavType.StringType })
+        ){backStackEntry ->
+
+            val gson = Gson()
+            val itemJson = backStackEntry.arguments?.getString("itemJson") ?: ""
+            val decodedItemJson = URLDecoder.decode(itemJson,StandardCharsets.UTF_8.toString())
+            val item = gson.fromJson(decodedItemJson,Inventory::class.java)
+
+            EditItemScreen(item = item, navController = navController, inventoryViewModel, sellingUnitViewModel)
+        }
+
+        composable(
             route = Screens.AddPartyScreen.route
         ) {
             AddPartyScreen(
                 navController = navController,
-                viewModel = partyViewModel
+                viewModel = partyViewModel,
+                categoryViewModel = categoryViewModel
             )
+        }
+
+        composable(
+            route = "${Screens.PartyDetailScreen.route}/{partyJson}",
+            arguments = listOf(navArgument("partyJson") {type = NavType.StringType })
+        ){ backStackEntry ->
+            val gson = Gson()
+            val partyJson = backStackEntry.arguments?.getString("partyJson") ?: ""
+            val decodedPartyJson = URLDecoder.decode(partyJson, StandardCharsets.UTF_8.toString()) // Decode JSON
+            val party = gson.fromJson(decodedPartyJson, Party::class.java)
+
+            PartyDetailScreen(party = party,navController = navController)
         }
 
         composable(

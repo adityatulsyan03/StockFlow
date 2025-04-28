@@ -31,11 +31,11 @@ fun BillsList(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        LazyColumn(
+        Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(bills) {
+            bills.forEach {
                 BillCard(
                     name = it.partyName,
                     amount = it.totalAmount.toString(),

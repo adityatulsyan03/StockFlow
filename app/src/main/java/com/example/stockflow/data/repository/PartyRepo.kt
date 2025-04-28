@@ -46,11 +46,14 @@ class PartyRepo @Inject constructor(
             emit(UiState.Loading)
             val response = partyApi.deletePartyById(token, partyId)
             if (response.status == "OK") {
+                Log.d("deletePartyById Success","Party deleted successfully")
                 emit(UiState.Success(response, "Party deleted successfully"))
             } else {
+                Log.d("deletePartyById Else",response.message ?: "Failed to delete party")
                 emit(UiState.Failed(response.message ?: "Failed to delete party"))
             }
         } catch (e: Exception) {
+            Log.d("deletePartyById E",e.message ?: "An unexpected error occurred")
             emit(UiState.Failed(e.message ?: "An unexpected error occurred"))
         }
     }

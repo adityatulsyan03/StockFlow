@@ -24,6 +24,10 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
     val categoryState by categoryViewModel.getCategoriesState.collectAsState()
     var isRefreshing by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        categoryViewModel.getAllCategories()
+    }
+
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             categoryViewModel.getAllCategories()
@@ -96,9 +100,7 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
                     )
                 }
 
-                is UiState.Idle -> {
-                    categoryViewModel.getAllCategories()
-                }
+                is UiState.Idle -> {}
             }
         }
     }

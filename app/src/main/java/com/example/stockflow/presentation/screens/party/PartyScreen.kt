@@ -1,5 +1,6 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.party
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,8 @@ fun PartyScreen(
     viewModel: PartyViewModel,
     categoryViewModel: CategoryViewModel
 ) {
+
+    Log.d("Screen","Party Screen")
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -79,7 +82,7 @@ fun PartyScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 when (selectedTabIndex) {
-                    0 -> PartyList(viewModel)
+                    0 -> PartyList(viewModel,navController)
                     1 -> CategoryList("PARTY", categoryViewModel)
                 }
             }

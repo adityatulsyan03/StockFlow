@@ -1,11 +1,22 @@
 package com.example.stockflow.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,19 +31,43 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
-import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.Party
+import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
-fun PartyList(viewModel: PartyViewModel) {
+fun PartyList(viewModel: PartyViewModel, navController: NavController) {
 
     val partiesState by viewModel.getAllPartiesState.collectAsState()
+    val partyDeletedStatus by viewModel.deletePartyState.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
+        if (shouldRefresh) {
+            Log.d("Launched Effect","savedStateHandle")
+            viewModel.getAllParties()
+            savedStateHandle?.remove<Boolean>("refreshInventory")
+        }
+    }
+
+    LaunchedEffect(partyDeletedStatus) {
+        if (partyDeletedStatus is UiState.Success){
+            Log.d("Launched Effect","inventoryDeletedState")
+            viewModel.getAllParties()
+            viewModel.resetDeletePartyState()
+        }
+    }
 
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
@@ -43,8 +78,7 @@ fun PartyList(viewModel: PartyViewModel) {
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = { isRefreshing = true }
-    ) {
+        onRefresh = { isRefreshing = true }) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -56,24 +90,23 @@ fun PartyList(viewModel: PartyViewModel) {
             )
             when (partiesState) {
                 is UiState.Loading -> {
+                    Log.d("Party State", "UiState Loading")
                     Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = Color.White)
                     }
                 }
 
                 is UiState.Success -> {
+                    Log.d("Party State", "UiState Success")
                     val parties = (partiesState as UiState.Success).data.data ?: emptyList()
                     if (parties.isEmpty()) {
                         Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No Parties Available",
-                                color = Color.Gray
+                                text = "No Parties Available", color = Color.Gray
                             )
                         }
                     } else {
@@ -84,29 +117,32 @@ fun PartyList(viewModel: PartyViewModel) {
                             items(parties.size) { index ->
                                 val party = parties[index]
                                 PartyCard(
-                                    name = party.name,
-                                    number = party.phone
-                                    //Amount Section
-                                )
+                                    party = party,
+                                    navController = navController,
+                                    onDeleted = {
+                                        viewModel.deletePartyById(it)
+                                        Log.d("Party To Delete",it)
+                                    })
                             }
                         }
                     }
                 }
 
                 is UiState.Failed -> {
+
+                    Log.d("Party State", "UiState Failed")
                     val errorMessage = (partiesState as UiState.Failed).message
                     Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Error: $errorMessage",
-                            color = Color.Red
+                            text = "Error: $errorMessage", color = Color.Red
                         )
                     }
                 }
 
                 is UiState.Idle -> {
+                    Log.d("Party State", "UiState Idle")
                     viewModel.getAllParties()
                 }
             }
@@ -115,26 +151,45 @@ fun PartyList(viewModel: PartyViewModel) {
 }
 
 @Composable
-fun PartyCard(name: String, number: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E1E1E)) // Dark theme background
-            .clickable { }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+fun PartyCard(
+    party: Party,
+    navController: NavController,
+    onDeleted: (String) -> Unit
+) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(12.dp))
+        .background(Color(0xFF1E1E1E)) // Dark theme background
+        .clickable {
+
+            val gson = Gson()
+            val partyJson = gson.toJson(party)
+            val encodedPartyBill = URLEncoder.encode(
+                partyJson, StandardCharsets.UTF_8.toString()
+            )
+            navController.navigate("${Screens.PartyDetailScreen.route}/$encodedPartyBill")
+        }
+        .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Column {
             Text(
-                text = name,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = party.name, fontWeight = FontWeight.Bold, color = Color.White
             )
             Text(
-                text = number,
-                color = Color(0xFFB0BEC5) // Light gray for balance
+                text = party.phone, color = Color(0xFFB0BEC5) // Light gray for balance
+            )
+        }
+        IconButton(
+            onClick = {
+                var a = party.id?:""
+                onDeleted(a)
+                Log.d("Party Id",a)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete"
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.user
 
 import android.util.Log
 import androidx.compose.foundation.layout.*

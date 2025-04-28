@@ -29,11 +29,23 @@ class PartyViewModel @Inject constructor(
     private val _deletePartyState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deletePartyState = _deletePartyState.asStateFlow()
 
-    private val _getPartyState = MutableStateFlow<UiState<CustomResponse<Party>>>(UiState.Idle)
-    val getPartyState = _getPartyState.asStateFlow()
+    private val _getPartyByIdState = MutableStateFlow<UiState<CustomResponse<Party>>>(UiState.Idle)
+    val getPartyByIdState = _getPartyByIdState.asStateFlow()
 
     private val _getAllPartiesState = MutableStateFlow<UiState<CustomResponse<List<Party>>>>(UiState.Idle)
     val getAllPartiesState = _getAllPartiesState.asStateFlow()
+
+    fun resetCreatePartyState() {
+        _createPartyState.value = UiState.Idle
+    }
+
+    fun resetUpdatePartyState() {
+        _updatePartyState.value = UiState.Idle
+    }
+
+    fun resetDeletePartyState() {
+        _deletePartyState.value = UiState.Idle
+    }
 
     fun createParty(party: Party) {
         _createPartyState.value = UiState.Loading
@@ -80,7 +92,7 @@ class PartyViewModel @Inject constructor(
 
     fun deletePartyById(partyId: String) {
         _deletePartyState.value = UiState.Loading
-
+        Log.d("Delete Party ",partyId)
         viewModelScope.launch {
             try {
                 val token = userRepo.getIdToken()
@@ -100,7 +112,7 @@ class PartyViewModel @Inject constructor(
     }
 
     fun getPartyById(partyId: String) {
-        _getPartyState.value = UiState.Loading
+        _getPartyByIdState.value = UiState.Loading
 
         viewModelScope.launch {
             try {
@@ -108,14 +120,14 @@ class PartyViewModel @Inject constructor(
                 Log.d("PartyViewModel", "Token: $token")
 
                 partyRepo.getPartyById(token, partyId).collect { response ->
-                    _getPartyState.value = response
+                    _getPartyByIdState.value = response
                     if (response is UiState.Success) {
                         Log.d("PartyViewModel", "Party retrieved successfully: ${response.data}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e("PartyViewModel", "Error fetching party: ${e.message}")
-                _getPartyState.value = UiState.Failed(e.message ?: "Unknown error occurred")
+                _getPartyByIdState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }
         }
     }

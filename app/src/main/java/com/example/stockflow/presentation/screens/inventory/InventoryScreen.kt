@@ -1,5 +1,6 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.inventory
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.stockflow.common.UiState
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.CategoryList
 import com.example.stockflow.presentation.components.FAB
@@ -37,6 +37,8 @@ fun InventoryScreen(
     viewModel: InventoryViewModel,
     categoryViewModel: CategoryViewModel
 ) {
+
+    Log.d("Screen","Inventory Screen")
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -96,7 +98,7 @@ fun InventoryScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 when (selectedTabIndex) {
-                    0 -> ItemList(viewModel)
+                    0 -> ItemList(viewModel,navController)
                     1 -> CategoryList(screen = "INVENTORY", categoryViewModel = categoryViewModel)
                 }
             }

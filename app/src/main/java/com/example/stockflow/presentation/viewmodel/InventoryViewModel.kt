@@ -29,11 +29,23 @@ class InventoryViewModel @Inject constructor(
     private val _deleteInventoryState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteInventoryState = _deleteInventoryState.asStateFlow()
 
-    private val _getInventoryState = MutableStateFlow<UiState<CustomResponse<Inventory>>>(UiState.Idle)
-    val getInventoryState = _getInventoryState.asStateFlow()
+    private val _getInventoryByIdState = MutableStateFlow<UiState<CustomResponse<Inventory>>>(UiState.Idle)
+    val getInventoryByIdState = _getInventoryByIdState.asStateFlow()
 
     private val _getAllInventoriesState = MutableStateFlow<UiState<CustomResponse<List<Inventory>>>>(UiState.Idle)
     val getAllInventoriesState = _getAllInventoriesState.asStateFlow()
+
+    fun resetAddItemState() {
+        _addInventoryState.value = UiState.Idle
+    }
+
+    fun resetUpdateItemState() {
+        _updateInventoryState.value = UiState.Idle
+    }
+
+    fun resetDeleteItemState() {
+        _deleteInventoryState.value = UiState.Idle
+    }
 
     fun addInventory(inventory: Inventory) {
         _addInventoryState.value = UiState.Loading
@@ -100,7 +112,7 @@ class InventoryViewModel @Inject constructor(
     }
 
     fun getInventoryById(inventoryId: String) {
-        _getInventoryState.value = UiState.Loading
+        _getInventoryByIdState.value = UiState.Loading
 
         viewModelScope.launch {
             try {
@@ -108,14 +120,14 @@ class InventoryViewModel @Inject constructor(
                 Log.d("InventoryViewModel", "Token: $token")
 
                 inventoryRepo.getInventoryById(token, inventoryId).collect { response ->
-                    _getInventoryState.value = response
+                    _getInventoryByIdState.value = response
                     if (response is UiState.Success) {
                         Log.d("InventoryViewModel", "Inventory retrieved successfully: ${response.data}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e("InventoryViewModel", "Error fetching inventory: ${e.message}")
-                _getInventoryState.value = UiState.Failed(e.message ?: "Unknown error occurred")
+                _getInventoryByIdState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }
         }
     }

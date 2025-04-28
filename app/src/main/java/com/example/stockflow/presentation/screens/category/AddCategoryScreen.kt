@@ -1,4 +1,4 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.category
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +37,17 @@ fun AddCategoryScreen(
     viewModel: CategoryViewModel,
     type: String
 ) {
+
+    Log.d("Screen","Add Category Screen")
+
+    val addCategoryState by viewModel.addCategoryState.collectAsState()
+
+    LaunchedEffect(addCategoryState) {
+        if (addCategoryState is UiState.Success){
+            navController.popBackStack()
+            viewModel.resetAddCategoryState()
+        }
+    }
 
     var categoryName by remember { mutableStateOf("") }
 

@@ -1,11 +1,16 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.user
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.DensityMedium
@@ -50,7 +55,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.max
 import kotlin.math.min
 
 @Composable
@@ -59,6 +63,8 @@ fun DashBoardScreen(
     viewModel: UserDetailViewModel,
     billViewModel: BillsViewModel
 ) {
+
+    Log.d("Screen","DashBoard Screen")
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRefreshing) {
@@ -109,23 +115,26 @@ fun DashBoardScreen(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = { isRefreshing = true }
             ) {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    UserStateContent(userState)
-                    Column {
-                        BankStateContent(bankState)
-                        BillStateContent(billState)
+                    item {
+                        UserStateContent(userState)
+                        Column {
+                            BankStateContent(bankState)
+                            BillStateContent(billState)
+                        }
                     }
-                    Button(
-                        onClick = { navController.navigate(Screens.AddBillScreen.route) },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(text = "+ Bill | Invoice", fontSize = 20.sp)
+                    item {
+                        Button(
+                            onClick = { navController.navigate(Screens.AddBillScreen.route) },
+                        ) {
+                            Text(text = "+ Bill | Invoice", fontSize = 20.sp)
+                        }
                     }
                 }
             }

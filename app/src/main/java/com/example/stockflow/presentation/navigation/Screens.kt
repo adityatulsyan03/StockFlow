@@ -12,6 +12,9 @@ sealed class Screens(val route: String) {
     data object AddCategoryScreen : Screens(route = "add_category_screen")
     data object LoginScreen : Screens(route = "login_screen")
     data object AddSellingUnit : Screens(route = "add_selling_unit_screen")
+    data object PartyDetailScreen : Screens(route = "party_detail_screen")
+    data object ItemDetailScreen : Screens(route = "item_detail_screen")
+    data object EditItemScreen : Screens(route = "edit_item_screen")
 
     data object BillScreen : Screens(route = "bill_screen")
     data object DayBookReportScreen : Screens(route = "day_book_report_screen")

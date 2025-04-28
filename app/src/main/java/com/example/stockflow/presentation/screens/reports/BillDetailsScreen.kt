@@ -1,9 +1,8 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.reports
 
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,13 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bills
-import com.example.stockflow.data.model.CustomResponse
-import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
-import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -32,6 +27,8 @@ fun BillDetailsScreen(
     viewModel: BillsViewModel,
     bill: Bills
 ) {
+    Log.d("Screen","Bill Detail Screen")
+
     AppScaffold(
         contentAlignment = Alignment.TopStart,
         topBar = {

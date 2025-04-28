@@ -1,4 +1,4 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.user
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -21,12 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bank
-import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
@@ -42,6 +40,8 @@ fun UserScreen(
     navController: NavController,
     viewModel: UserDetailViewModel
 ) {
+
+    Log.d("Screen","User Screen")
 
     var isRefreshing by remember { mutableStateOf(false) }
 

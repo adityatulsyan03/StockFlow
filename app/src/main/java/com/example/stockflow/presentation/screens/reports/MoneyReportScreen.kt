@@ -1,6 +1,7 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.reports
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,9 @@ fun MoneyReportScreen(
     navController: NavController,
     viewModel: ReportViewModel
 ) {
+
+    Log.d("Screen","Money Report Screen")
+
     var startDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     var endDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     var dateRange by remember { mutableStateOf("") }

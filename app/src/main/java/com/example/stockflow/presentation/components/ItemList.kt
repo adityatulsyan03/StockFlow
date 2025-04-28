@@ -1,11 +1,15 @@
 package com.example.stockflow.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,18 +20,44 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.stockflow.R
 import com.example.stockflow.common.UiState
+import com.example.stockflow.data.model.Inventory
+import com.example.stockflow.presentation.navigation.Screens
+import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
-fun ItemList(viewModel: InventoryViewModel) {
-
+fun ItemList(viewModel: InventoryViewModel, navController: NavController) {
     val inventoryState by viewModel.getAllInventoriesState.collectAsState()
+    val inventoryDeletedState by viewModel.deleteInventoryState.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
+        if (shouldRefresh) {
+            Log.d("Launched Effect","savedStateHandle")
+            viewModel.getAllInventories()
+            savedStateHandle?.remove<Boolean>("refreshInventory")
+        }
+    }
+
+    LaunchedEffect(inventoryDeletedState) {
+        if (inventoryDeletedState is UiState.Success){
+            Log.d("Launched Effect","inventoryDeletedState")
+            viewModel.getAllInventories()
+            viewModel.resetDeleteItemState()
+        }
+    }
 
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
@@ -52,13 +82,7 @@ fun ItemList(viewModel: InventoryViewModel) {
         ) {
             when (inventoryState) {
                 is UiState.Loading -> {
-                    // Show a loading indicator
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color.White)
-                    }
+                    LoadingScreen()
                 }
 
                 is UiState.Success -> {
@@ -80,7 +104,12 @@ fun ItemList(viewModel: InventoryViewModel) {
                                 ItemCard(
                                     name = items[index].name,
                                     quantity = "${items[index].quantity} pcs",
-                                    price = "₹${items[index].sellPrice}"
+                                    price = "₹${items[index].sellPrice}",
+                                    item = items[index],
+                                    navController = navController,
+                                    onDelete = {
+                                        viewModel.deleteInventoryById(it)
+                                    }
                                 )
                             }
                         }
@@ -106,13 +135,30 @@ fun ItemList(viewModel: InventoryViewModel) {
 }
 
 @Composable
-fun ItemCard(name: String, quantity: String, price: String) {
+fun ItemCard(
+    name: String,
+    quantity: String,
+    price: String,
+    item: Inventory,
+    navController: NavController,
+    onDelete: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFF1E1E1E))
-            .clickable { }
+            .clickable {
+
+                val gson = Gson()
+                val itemJson = gson.toJson(item)
+                val encodedItem = URLEncoder.encode(
+                    itemJson,
+                    StandardCharsets.UTF_8.toString()
+                )
+                navController.navigate("${Screens.ItemDetailScreen.route}/$encodedItem")
+
+            }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -150,5 +196,36 @@ fun ItemCard(name: String, quantity: String, price: String) {
                 fontSize = 14.sp
             )
         }
+
+        IconButton(
+            onClick = {
+                onDelete(item.id?:"")
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete"
+            )
+        }
+
+        IconButton(
+            onClick = {
+
+                val gson = Gson()
+                val itemJson = gson.toJson(item)
+                val encodedItem = URLEncoder.encode(
+                    itemJson,
+                    StandardCharsets.UTF_8.toString()
+                )
+
+                navController.navigate("${Screens.EditItemScreen.route}/$encodedItem")
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit"
+            )
+        }
+
     }
 }

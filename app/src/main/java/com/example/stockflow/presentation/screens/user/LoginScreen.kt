@@ -1,7 +1,8 @@
-package com.example.stockflow.presentation.screens
+package com.example.stockflow.presentation.screens.user
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
@@ -33,6 +34,9 @@ fun LoginScreen(
     viewModel: UserDetailViewModel,
     navController: NavController
 ) {
+
+    Log.d("Screen","Login Screen")
+
     val authUserState by viewModel.adduser.collectAsState()
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
     val context = LocalContext.current
@@ -40,15 +44,23 @@ fun LoginScreen(
 
     // Handle authentication states
     when (authUserState) {
-        is UiState.Loading -> Log.d("LoginScreen", "Loading")
+        is UiState.Loading -> {
+            Log.d("LoginScreen", "Loading")
+            LoadingScreen()
+        }
         is UiState.Success -> {
             Log.d("LoginScreen", "Success")
             LaunchedEffect(authUserState) {
                 navController.navigate(Screens.DashBoardScreen.route)
             }
         }
-        is UiState.Failed -> Log.d("LoginScreen", "Failed")
-        else -> {}
+        is UiState.Failed -> {
+            Log.d("LoginScreen", "Failed")
+            ErrorScreen()
+        }
+        is UiState.Idle -> {
+
+        }
     }
 
     val launcher = rememberFirebaseAuthLauncher(onAuthComplete = { result ->
@@ -72,9 +84,9 @@ fun LoginScreen(
         Toast.makeText(context, "Login Failed!", Toast.LENGTH_LONG).show()
     })
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFF121212) // Hardcoded Background Color
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(Color(0xFF121212)) // Hardcoded Background Color
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
