@@ -29,6 +29,7 @@ import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.SellingUnitViewModel
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -56,7 +57,7 @@ fun EditItemScreen(
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshInventory", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             inventoryViewModel.resetUpdateItemState()
         }
     }
@@ -96,7 +97,7 @@ fun EditItemScreen(
                     TopBar(
                         title = "Edit Item",
                         navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                        onNavigationClick = { navController.popBackStack() },
+                        onNavigationClick = { navController.safePopBackStack() },
                         navigationIconContentDescription = "Back"
                     )
                 },

@@ -4,7 +4,9 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +23,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,8 +39,8 @@ import java.time.format.DateTimeFormatter
 fun DatePickerField(
     label: String = "Select Date",
     selectedDate: MutableState<LocalDate?>,
-    modifier: Modifier = Modifier,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
@@ -48,34 +51,39 @@ fun DatePickerField(
             selectedDate.value = newDate
             onDateSelected(newDate)
         },
-        LocalDate.now().year,
-        LocalDate.now().monthValue - 1,
-        LocalDate.now().dayOfMonth
+        selectedDate.value?.year ?: LocalDate.now().year,
+        selectedDate.value?.monthValue?.minus(1) ?: (LocalDate.now().monthValue - 1),
+        selectedDate.value?.dayOfMonth ?: LocalDate.now().dayOfMonth
     )
 
-    OutlinedTextField(
-        value = selectedDate.value?.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) ?: "",
-        onValueChange = {},
-        label = { Text(label) },
-        placeholder = { Text("Select Date") },
-        readOnly = true,
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.CalendarMonth,
-                contentDescription = "Pick Date",
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp)
-                    .clickable { datePickerDialog.show() }
-            )
-        },
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            disabledTextColor = Color.White,
-            disabledLabelColor = Color.White,
-            disabledBorderColor = Color.White,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { datePickerDialog.show() }
-    )
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = selectedDate.value?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                ?: "",
+            onValueChange = {
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                selectedDate.value = try {
+                    LocalDate.parse(it, formatter)
+                } catch (e: Exception) {
+                    null
+                }
+            },
+            label = { Text(label) },
+            readOnly = true,
+            enabled = false,
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                disabledTextColor = Color.White,
+                disabledLabelColor = Color.White,
+                disabledBorderColor = Color.White,
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { datePickerDialog.show() }
+        )
+    }
 }

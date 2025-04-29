@@ -16,6 +16,7 @@ import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.SellingUnitViewModel
 import com.example.stockflow.data.model.SellingUnit
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun AddSellingUnitScreen(
@@ -31,7 +32,7 @@ fun AddSellingUnitScreen(
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshInventory", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetAddSellingUnit()
         }
     }
@@ -43,7 +44,7 @@ fun AddSellingUnitScreen(
                 title = "Add Selling Unit",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.safePopBackStack() }
             )
         },
         floatingActionButton = {

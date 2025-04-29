@@ -24,8 +24,8 @@ class BillsViewModel @Inject constructor(
     private val _billsState = MutableStateFlow<UiState<CustomResponse<List<Bills>>>>(UiState.Idle)
     val billsState = _billsState.asStateFlow()
 
-    private val _postBillState = MutableStateFlow<UiState<CustomResponse<Bills>>>(UiState.Idle)
-    val postBillState = _postBillState.asStateFlow()
+    private val _addBillState = MutableStateFlow<UiState<CustomResponse<Bills>>>(UiState.Idle)
+    val addBillState = _addBillState.asStateFlow()
 
     private val _deleteBillState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteBillState = _deleteBillState.asStateFlow()
@@ -38,6 +38,14 @@ class BillsViewModel @Inject constructor(
 
     private val _billsByDateRangeState = MutableStateFlow<UiState<CustomResponse<List<Bills>>>>(UiState.Idle)
     val billsByDateRangeState = _billsByDateRangeState.asStateFlow()
+
+    fun resetAddBillState(){
+        _addBillState.value = UiState.Idle
+    }
+
+    fun resetDeleteBillState(){
+        _deleteBillState.value = UiState.Idle
+    }
 
     fun getAllBills() {
         _billsState.value = UiState.Loading
@@ -59,22 +67,22 @@ class BillsViewModel @Inject constructor(
         }
     }
 
-    fun postBill(bill: Bills) {
-        _postBillState.value = UiState.Loading
+    fun addBill(bill: Bills) {
+        _addBillState.value = UiState.Loading
         viewModelScope.launch {
             try {
                 val token = userRepo.getIdToken()
                 Log.d("BillsViewModel", "Posting bill with token: $token")
 
                 billsRepo.postBill(token, bill).collect { response ->
-                    _postBillState.value = response
+                    _addBillState.value = response
                     if (response is UiState.Success) {
                         Log.d("BillsViewModel", "Bill posted successfully: ${response.data}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e("BillsViewModel", "Error posting bill: ${e.message}")
-                _postBillState.value = UiState.Failed(e.message ?: "Unknown error occurred")
+                _addBillState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }
         }
     }

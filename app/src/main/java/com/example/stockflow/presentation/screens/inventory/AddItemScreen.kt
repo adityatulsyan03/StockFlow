@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Inventory
 import com.example.stockflow.presentation.components.AppScaffold
+import com.example.stockflow.presentation.components.CustomTextField
 import com.example.stockflow.presentation.components.DatePickerField
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.FAB
@@ -48,6 +49,7 @@ import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.SellingUnitViewModel
+import com.example.stockflow.utils.safePopBackStack
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
@@ -109,7 +111,7 @@ fun AddItemScreen(
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshInventory", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetAddItemState()
         }
     }
@@ -136,7 +138,7 @@ fun AddItemScreen(
                                 TopBar(
                                     title = "Add Item",
                                     navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                                    onNavigationClick = { navController.popBackStack() },
+                                    onNavigationClick = { navController.safePopBackStack() },
                                     navigationIconContentDescription = "Back"
                                 )
                             },
@@ -194,12 +196,12 @@ fun AddItemScreen(
                                 }
 
                                 item {
-                                    OutlinedTextField(
-                                        value = name,
-                                        onValueChange = { name = it },
-                                        label = { Text("Name") },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                    CustomTextField(
+                                        label = "Name",
+                                        value = name
+                                    ) {
+                                        name = it
+                                    }
                                 }
 
                                 item {
@@ -207,13 +209,14 @@ fun AddItemScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        OutlinedTextField(
+                                        CustomTextField(
+                                            label = "Sell Price",
                                             value = sellPrice,
-                                            onValueChange = { sellPrice = it },
-                                            label = { Text("Sell Price") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                            keyboardType = KeyboardType.Number,
                                             modifier = Modifier.weight(0.8f)
-                                        )
+                                        ) {
+                                            sellPrice = it
+                                        }
                                         DropdownTextField(
                                             label = "Sell Price Unit",
                                             options = sellingUnits,
@@ -245,31 +248,33 @@ fun AddItemScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        OutlinedTextField(
+                                        CustomTextField(
+                                            label = "MRP",
                                             value = mrp,
-                                            onValueChange = { mrp = it },
-                                            label = { Text("MRP") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                            keyboardType = KeyboardType.Number,
                                             modifier = Modifier.weight(1f)
-                                        )
-                                        OutlinedTextField(
+                                        ) {
+                                            mrp = it
+                                        }
+                                        CustomTextField(
+                                            label = "Purchase Price",
                                             value = purchasePrice,
-                                            onValueChange = { purchasePrice = it },
-                                            label = { Text("Purchase Price") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                            keyboardType = KeyboardType.Number,
                                             modifier = Modifier.weight(1f)
-                                        )
+                                        ) {
+                                            purchasePrice = it
+                                        }
                                     }
                                 }
 
                                 item {
-                                    OutlinedTextField(
+                                    CustomTextField(
+                                        label = "Quantity",
                                         value = quantity,
-                                        onValueChange = { quantity = it },
-                                        label = { Text("Quantity") },
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                        keyboardType = KeyboardType.Number
+                                    ) {
+                                        quantity = it
+                                    }
                                 }
 
                                 item {
@@ -288,47 +293,49 @@ fun AddItemScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        OutlinedTextField(
+                                        CustomTextField(
+                                            label = "Item Code",
                                             value = itemCode,
-                                            onValueChange = { itemCode = it },
-                                            label = { Text("Item Code") },
                                             modifier = Modifier.weight(1f)
-                                        )
-                                        OutlinedTextField(
+                                        ) {
+                                            itemCode = it
+                                        }
+                                        CustomTextField(
+                                            label = "Barcode",
                                             value = barcode,
-                                            onValueChange = { barcode = it },
-                                            label = { Text("Barcode") },
                                             modifier = Modifier.weight(1f)
-                                        )
+                                        ) {
+                                            barcode = it
+                                        }
                                     }
                                 }
 
                                 item {
-                                    OutlinedTextField(
-                                        value = itemDescription,
-                                        onValueChange = { itemDescription = it },
-                                        label = { Text("Description") },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                    CustomTextField(
+                                        label = "Description",
+                                        value = itemDescription
+                                    ) {
+                                        itemDescription = it
+                                    }
                                 }
 
                                 item {
-                                    OutlinedTextField(
+                                    CustomTextField(
+                                        label = "Low Stock Alert",
                                         value = lowStockAlert,
-                                        onValueChange = { lowStockAlert = it },
-                                        label = { Text("Low Stock Alert") },
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                        keyboardType = KeyboardType.Number
+                                    ) {
+                                        lowStockAlert = it
+                                    }
                                 }
 
                                 item {
-                                    OutlinedTextField(
-                                        value = storageLocation,
-                                        onValueChange = { storageLocation = it },
-                                        label = { Text("Storage Location") },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                    CustomTextField(
+                                        label = "Storage Location",
+                                        value = storageLocation
+                                    ) {
+                                        storageLocation = it
+                                    }
                                 }
 
                                 item {

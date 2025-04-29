@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,10 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bills
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -29,6 +32,19 @@ fun BillDetailsScreen(
 ) {
     Log.d("Screen","Bill Detail Screen")
 
+    val deleteBillState by viewModel.deleteBillState.collectAsState()
+
+    LaunchedEffect(deleteBillState is UiState.Success) {
+        if (deleteBillState is UiState.Success){
+            Log.d("Add Bill","UiState Success")
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshBill", true)
+            navController.safePopBackStack()
+            viewModel.resetDeleteBillState()
+        }
+    }
+
     AppScaffold(
         contentAlignment = Alignment.TopStart,
         topBar = {
@@ -37,7 +53,12 @@ fun BillDetailsScreen(
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
                 onNavigationClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
+                },
+                trailingIcon = Icons.Default.Delete,
+                trailingIconContentDescription = "Delete",
+                onTrailingClick = {
+                    viewModel.deleteBill(billId = bill.id ?: "")
                 }
             )
         }

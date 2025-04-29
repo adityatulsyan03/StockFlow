@@ -25,6 +25,7 @@ import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
+import com.example.stockflow.utils.safePopBackStack
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.gson.Gson
@@ -40,6 +41,19 @@ fun BillsScreen(
 
     Log.d("Screen","Bill Screen")
 
+    val billState by viewModel.billsState.collectAsState()
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshBill")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshBill") ?: false
+        if (shouldRefresh) {
+            Log.d("Launched Effect","savedStateHandle")
+            viewModel.getAllBills()
+            savedStateHandle?.remove<Boolean>("refreshBill")
+        }
+    }
+
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRefreshing) {
@@ -49,8 +63,6 @@ fun BillsScreen(
         }
     }
 
-    val billState by viewModel.billsState.collectAsState()
-
     AppScaffold(
         contentAlignment = Alignment.TopStart,
         topBar = {
@@ -59,7 +71,7 @@ fun BillsScreen(
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
                 onNavigationClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }

@@ -39,6 +39,7 @@ import com.example.stockflow.presentation.components.DatePickerField
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.ReportViewModel
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -71,7 +72,7 @@ fun DataTableScreen(
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
                 onNavigationClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }

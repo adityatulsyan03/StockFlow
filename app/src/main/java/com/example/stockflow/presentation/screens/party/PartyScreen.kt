@@ -16,6 +16,7 @@ import com.example.stockflow.presentation.navigation.BottomNavBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun PartyScreen(
@@ -35,7 +36,7 @@ fun PartyScreen(
             TopBar(
                 title = "Party",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                onNavigationClick = { navController.popBackStack() },
+                onNavigationClick = { navController.safePopBackStack() },
                 navigationIconContentDescription = "Back"
             )
         },

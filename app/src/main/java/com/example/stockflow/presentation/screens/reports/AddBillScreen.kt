@@ -29,6 +29,7 @@ import com.example.stockflow.presentation.components.*
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -96,6 +97,19 @@ fun AddBillScreenUI(
     inventories: List<Inventory>
 ) {
 
+    val addBillState by viewModel.addBillState.collectAsState()
+
+    LaunchedEffect(addBillState is UiState.Success) {
+        if ( addBillState is UiState.Success ){
+            Log.d("Add Bill","UiState Success")
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshBill", true)
+            navController.safePopBackStack()
+            viewModel.resetAddBillState()
+        }
+    }
+
     var partyName by remember { mutableStateOf("") }
     val billDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     val billTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
@@ -111,14 +125,14 @@ fun AddBillScreenUI(
             TopBar(
                 title = "Add Bill",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                onNavigationClick = { navController.popBackStack() },
+                onNavigationClick = { navController.safePopBackStack() },
                 navigationIconContentDescription = "Back"
             )
         },
         floatingActionButton = {
             FAB(
                 onClick = {
-                    viewModel.postBill(
+                    viewModel.addBill(
                         Bills(
                             billDate = billDate,
                             billTime = billTime,
@@ -130,7 +144,6 @@ fun AddBillScreenUI(
                             isInvoice = isInvoice
                         )
                     )
-                    navController.popBackStack()
                 },
                 text = "ADD",
                 extended = true,
@@ -146,15 +159,13 @@ fun AddBillScreenUI(
                 var isDropdownExpanded by remember { mutableStateOf(false) }
 
                 val filteredItems = parties.filter { it.name.contains(partyName, ignoreCase = true) }
-                OutlinedTextField(
+                CustomTextField(
                     value = partyName,
-                    onValueChange = {
-                        partyName = it
-                        isDropdownExpanded = it.isNotEmpty()
-                    },
-                    label = { Text("Party Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    label = "Party Name"
+                ) {
+                    partyName = it
+                    isDropdownExpanded = it.isNotEmpty()
+                }
                 if (isDropdownExpanded) {
                     Box(
                         modifier = Modifier

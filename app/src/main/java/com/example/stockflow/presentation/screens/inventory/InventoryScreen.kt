@@ -30,6 +30,7 @@ import com.example.stockflow.presentation.navigation.BottomNavBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun InventoryScreen(
@@ -49,7 +50,7 @@ fun InventoryScreen(
             TopBar(
                 title = "Inventory",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                onNavigationClick = { navController.popBackStack() },
+                onNavigationClick = { navController.safePopBackStack() },
                 navigationIconContentDescription = "Back"
             )
         },

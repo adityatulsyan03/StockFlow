@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,8 +22,10 @@ import com.example.stockflow.data.model.Bank
 import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
+import com.example.stockflow.presentation.components.CustomTextField
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun EditUserScreen(
@@ -41,7 +44,7 @@ fun EditUserScreen(
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshUserDetails", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetUpdateUserState()
             viewModel.resetUpdateBankState()
         }
@@ -80,7 +83,7 @@ fun EditUserScreen(
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 onNavigationClick = {
                     Log.d("EditUserScreen", "Navigating back.")
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
             )
         }
@@ -150,7 +153,7 @@ fun EditUserForm(
         CustomTextField(label = "IFSC Code", value = ifscCode) { ifscCode = it }
         CustomTextField(label = "Account Holder Name", value = accountHolderName) { accountHolderName = it }
         CustomTextField(label = "Bank Name", value = bankName) { bankName = it }
-        CustomTextField(label = "UPI ID", value = upiId) { upiId = it }
+        CustomTextField(label = "UPI ID", value = upiId, imeAction = ImeAction.Done) { upiId = it }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -186,29 +189,4 @@ fun EditUserForm(
             Text("Save Changes")
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomTextField(
-    label: String,
-    value: String?,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    onValueChange: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = value ?: "",
-        onValueChange = onValueChange,
-        label = { Text(label, color = Color.White) },
-        textStyle = LocalTextStyle.current.copy(color = Color.White),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Color(0xFFB0BEC5),
-            unfocusedBorderColor = Color.Gray,
-            cursorColor = Color.White
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    )
 }

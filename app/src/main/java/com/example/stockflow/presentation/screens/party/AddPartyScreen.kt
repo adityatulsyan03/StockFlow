@@ -6,14 +6,28 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +38,7 @@ import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.components.AppScaffold
+import com.example.stockflow.presentation.components.CustomTextField
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
@@ -31,6 +46,7 @@ import com.example.stockflow.presentation.screens.user.ErrorScreen
 import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -42,24 +58,24 @@ fun AddPartyScreen(
     viewModel: PartyViewModel,
     categoryViewModel: CategoryViewModel,
 ) {
-    Log.d("Screen","Add Party Screen")
+    Log.d("Screen", "Add Party Screen")
 
     val addPartyState by viewModel.createPartyState.collectAsState()
     val getCategoriesState by categoryViewModel.getCategoriesState.collectAsState()
 
     LaunchedEffect(addPartyState is UiState.Success) {
-        if (addPartyState is UiState.Success){
-            Log.d("Add Party","UiState Success")
+        if (addPartyState is UiState.Success) {
+            Log.d("Add Party", "UiState Success")
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshParty", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetCreatePartyState()
         }
     }
 
     LaunchedEffect(Unit) {
-        Log.d("Launched Effect","Fetching Category for Party")
+        Log.d("Launched Effect", "Fetching Category for Party")
         categoryViewModel.getAllCategoriesByType("Party")
     }
 
@@ -85,17 +101,18 @@ fun AddPartyScreen(
         LocalDate.now().dayOfMonth
     )
 
-    when (getCategoriesState){
+    when (getCategoriesState) {
 
         is UiState.Success -> {
-            val categoryOptions = (getCategoriesState as UiState.Success).data.data?.map { it.name } ?: emptyList()
+            val categoryOptions =
+                (getCategoriesState as UiState.Success).data.data?.map { it.name } ?: emptyList()
             AppScaffold(
                 contentAlignment = Alignment.TopStart,
                 topBar = {
                     TopBar(
                         title = "Add Party",
                         navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                        onNavigationClick = { navController.popBackStack() },
+                        onNavigationClick = { navController.safePopBackStack() },
                         navigationIconContentDescription = "Back"
                     )
                 },
@@ -119,7 +136,11 @@ fun AddPartyScreen(
                                     )
                                 )
                             } else {
-                                Toast.makeText(context, "Please fill all required fields", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please fill all required fields",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         },
                         text = "ADD",
@@ -133,22 +154,22 @@ fun AddPartyScreen(
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
                     item {
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Name") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        CustomTextField(
+                            label = "Name",
+                            value = name
+                        ) {
+                            name = it
+                        }
                     }
 
                     item {
-                        OutlinedTextField(
+                        CustomTextField(
+                            label = "Phone",
                             value = phone,
-                            onValueChange = { phone = it },
-                            label = { Text("Phone") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            keyboardType = KeyboardType.Phone
+                        ) {
+                            phone = it
+                        }
                     }
 
                     item {
@@ -166,38 +187,40 @@ fun AddPartyScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            OutlinedTextField(
+                            CustomTextField(
+                                label = "Billing Address",
                                 value = billingAddress,
-                                onValueChange = { billingAddress = it },
-                                label = { Text("Billing Address") },
                                 modifier = Modifier.weight(1f)
-                            )
-                            OutlinedTextField(
+                            ) {
+                                billingAddress = it
+                            }
+                            CustomTextField(
+                                label = "Delivery Address",
                                 value = deliveryAddress,
-                                onValueChange = { deliveryAddress = it },
-                                label = { Text("Delivery Address") },
                                 modifier = Modifier.weight(1f)
-                            )
+                            ) {
+                                deliveryAddress = it
+                            }
                         }
                     }
 
                     item {
-                        OutlinedTextField(
+                        CustomTextField(
+                            label = "Postal Code",
                             value = deliveryPostalCode,
-                            onValueChange = { deliveryPostalCode = it },
-                            label = { Text("Postal Code") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            keyboardType = KeyboardType.Number
+                        ) {
+                            deliveryPostalCode = it
+                        }
                     }
 
                     item {
-                        OutlinedTextField(
-                            value = gstNumber,
-                            onValueChange = { gstNumber = it },
-                            label = { Text("GST Number") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        CustomTextField(
+                            label = "GST Number",
+                            value = gstNumber
+                        ) {
+                            gstNumber = it
+                        }
                     }
 
                     item {
@@ -217,11 +240,20 @@ fun AddPartyScreen(
                     item {
                         Box(modifier = Modifier.fillMaxWidth()) {
                             OutlinedTextField(
-                                value = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
-                                onValueChange = {},
+                                value = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                                    ?: "",
+                                onValueChange = {
+                                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                    dob = try {
+                                        LocalDate.parse(it, formatter)
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                },
                                 label = { Text("Date of Birth") },
                                 readOnly = true,
                                 enabled = false,
+                                singleLine = true,
                                 colors = TextFieldDefaults.outlinedTextFieldColors(
                                     disabledTextColor = Color.Black,
                                     disabledLabelColor = Color.Gray,

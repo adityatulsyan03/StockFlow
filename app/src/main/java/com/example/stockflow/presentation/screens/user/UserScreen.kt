@@ -32,6 +32,7 @@ import com.example.stockflow.presentation.components.UserDetailItem
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
 import com.example.stockflow.ui.theme.StockFlowTheme
+import com.example.stockflow.utils.safePopBackStack
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -103,7 +104,7 @@ fun UserScreen(
                 TopBar(
                     title = "User Details",
                     navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                    onNavigationClick = { navController.popBackStack() },
+                    onNavigationClick = { navController.safePopBackStack() },
                     navigationIconContentDescription = "Back",
                     trailingIcon = Icons.Default.Edit,
                     trailingIconContentDescription = "Edit",

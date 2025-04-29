@@ -38,6 +38,8 @@ import androidx.navigation.NavHostController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.components.AppScaffold
+import com.example.stockflow.presentation.components.CustomTextField
+import com.example.stockflow.presentation.components.DatePickerField
 import com.example.stockflow.presentation.components.DropdownTextField
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
@@ -45,6 +47,7 @@ import com.example.stockflow.presentation.screens.user.ErrorScreen
 import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -68,7 +71,7 @@ fun EditPartyScreen(
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshParty", true)
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetUpdatePartyState()
         }
     }
@@ -111,7 +114,7 @@ fun EditPartyScreen(
                     TopBar(
                         title = "Edit Party",
                         navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                        onNavigationClick = { navController.popBackStack() },
+                        onNavigationClick = { navController.safePopBackStack() },
                         navigationIconContentDescription = "Back"
                     )
                 },
@@ -144,22 +147,22 @@ fun EditPartyScreen(
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
                     item {
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Name") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        CustomTextField(
+                            label = "Name",
+                            value = name
+                        ) {
+                            name = it
+                        }
                     }
 
                     item {
-                        OutlinedTextField(
+                        CustomTextField(
+                            label = "Phone",
                             value = phone,
-                            onValueChange = { phone = it },
-                            label = { Text("Phone") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            keyboardType = KeyboardType.Phone
+                        ) {
+                            phone = it
+                        }
                     }
 
                     item {
@@ -177,38 +180,40 @@ fun EditPartyScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            OutlinedTextField(
+                            CustomTextField(
+                                label = "Billing Address",
                                 value = billingAddress,
-                                onValueChange = { billingAddress = it },
-                                label = { Text("Billing Address") },
                                 modifier = Modifier.weight(1f)
-                            )
-                            OutlinedTextField(
+                            ) {
+                                billingAddress = it
+                            }
+                            CustomTextField(
+                                label = "Delivery Address",
                                 value = deliveryAddress,
-                                onValueChange = { deliveryAddress = it },
-                                label = { Text("Delivery Address") },
                                 modifier = Modifier.weight(1f)
-                            )
+                            ) {
+                                deliveryAddress = it
+                            }
                         }
                     }
 
                     item {
-                        OutlinedTextField(
+                        CustomTextField(
+                            label = "Postal Code",
                             value = deliveryPostalCode,
-                            onValueChange = { deliveryPostalCode = it },
-                            label = { Text("Postal Code") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            keyboardType = KeyboardType.Number
+                        ) {
+                            deliveryPostalCode = it
+                        }
                     }
 
                     item {
-                        OutlinedTextField(
-                            value = gstNumber,
-                            onValueChange = { gstNumber = it },
-                            label = { Text("GST Number") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        CustomTextField(
+                            label = "GST Number",
+                            value = gstNumber
+                        ) {
+                            gstNumber = it
+                        }
                     }
 
                     item {
@@ -226,27 +231,43 @@ fun EditPartyScreen(
                     }
 
                     item {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            OutlinedTextField(
-                                value = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
-                                onValueChange = {},
-                                label = { Text("Date of Birth") },
-                                readOnly = true,
-                                enabled = false,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    disabledTextColor = Color.Black,
-                                    disabledLabelColor = Color.Gray,
-                                    disabledBorderColor = Color.Gray,
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .clickable { datePickerDialog.show() }
-                            )
-                        }
+                        DatePickerField(
+                            label = "Date of Birth",
+                            selectedDate = remember { mutableStateOf(dob) },
+                            onDateSelected = { selected ->
+                                dob = selected
+                            }
+                        )
+//                        Box(modifier = Modifier.fillMaxWidth()) {
+//                            OutlinedTextField(
+//                                value = dob?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                                    ?: "",
+//                                onValueChange = {
+//                                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+//                                    dob = try {
+//                                        LocalDate.parse(it, formatter)
+//                                    } catch (e: Exception) {
+//                                        null
+//                                    }
+//                                },
+//                                label = { Text("Date of Birth") },
+//                                readOnly = true,
+//                                enabled = false,
+//                                singleLine = true,
+//                                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                                    disabledTextColor = Color.Black,
+//                                    disabledLabelColor = Color.Gray,
+//                                    disabledBorderColor = Color.Gray,
+//                                ),
+//                                modifier = Modifier.fillMaxWidth()
+//                            )
+//
+//                            Box(
+//                                modifier = Modifier
+//                                    .matchParentSize()
+//                                    .clickable { datePickerDialog.show() }
+//                            )
+//                        }
                     }
                 }
             }

@@ -20,6 +20,7 @@ import com.example.stockflow.data.model.StockReport
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.ReportViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -39,7 +40,7 @@ fun StockReportScreen(
                 navigationIcon = Icons.Default.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
                 onNavigationClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }

@@ -30,6 +30,7 @@ import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun AddCategoryScreen(
@@ -44,7 +45,7 @@ fun AddCategoryScreen(
 
     LaunchedEffect(addCategoryState) {
         if (addCategoryState is UiState.Success){
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetAddCategoryState()
         }
     }
@@ -58,7 +59,7 @@ fun AddCategoryScreen(
                 title = "Add Category",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.safePopBackStack() }
             )
         },
         floatingActionButton = {
@@ -72,7 +73,7 @@ fun AddCategoryScreen(
                             )
                         )
                     )
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 text = "ADD",
                 extended = true

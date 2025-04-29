@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
+import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -44,7 +45,7 @@ fun PartyDetailScreen(party: Party, navController: NavHostController) {
             TopBar(
                 title = "Party Details",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
-                onNavigationClick = { navController.popBackStack() },
+                onNavigationClick = { navController.safePopBackStack() },
                 navigationIconContentDescription = "Back"
             )
         }

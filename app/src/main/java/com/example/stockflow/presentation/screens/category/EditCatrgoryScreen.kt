@@ -30,6 +30,7 @@ import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
+import com.example.stockflow.utils.safePopBackStack
 
 @Composable
 fun EditCategoryScreen(
@@ -44,7 +45,7 @@ fun EditCategoryScreen(
 
     LaunchedEffect(updateCategoryState) {
         if (updateCategoryState is UiState.Success){
-            navController.popBackStack()
+            navController.safePopBackStack()
             viewModel.resetAddCategoryState()
         }
     }
@@ -58,7 +59,7 @@ fun EditCategoryScreen(
                 title = "Edit Category",
                 navigationIcon = Icons.Outlined.ArrowBackIosNew,
                 navigationIconContentDescription = "Back",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.safePopBackStack() }
             )
         },
         floatingActionButton = {

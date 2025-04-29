@@ -207,7 +207,9 @@ fun TopBarContent(
 @Composable
 fun LoadingScreen() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF121212)),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
