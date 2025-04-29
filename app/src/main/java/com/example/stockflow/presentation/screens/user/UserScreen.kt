@@ -53,6 +53,18 @@ fun UserScreen(
         }
     }
 
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshUserDetails")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshUserDetails") ?: false
+        if (shouldRefresh) {
+            Log.d("Launched Effect","savedStateHandle")
+            viewModel.getUserData()
+            viewModel.getBankDetails()
+            savedStateHandle?.remove<Boolean>("refreshUserDetails")
+        }
+    }
+
     val userState = viewModel.getUserState.collectAsState().value
     val bankState = viewModel.bankState.collectAsState().value
 
@@ -62,9 +74,11 @@ fun UserScreen(
     // Fetch user and bank data **only if not already loaded**
     LaunchedEffect(Unit) {
         if (userState !is UiState.Success) {
+            Log.d("User Screen userState","Success")
             viewModel.getUserData()
         }
         if (bankState !is UiState.Success) {
+            Log.d("User Screen bankState","Success")
             viewModel.getBankDetails()
         }
     }

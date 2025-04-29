@@ -38,6 +38,10 @@ class CategoryViewModel @Inject constructor(
         _addCategoryState.value = UiState.Idle
     }
 
+    fun resetUpdateCategoryState(){
+        _updateCategoryState.value = UiState.Idle
+    }
+
     fun addCategory(category: List<Category>) {
         _addCategoryState.value = UiState.Loading
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,18 +15,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
+import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
-fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
+fun CategoryList(screen: String, categoryViewModel: CategoryViewModel, navController: NavController) {
+
     val categoryState by categoryViewModel.getCategoriesState.collectAsState()
+    val deleteCategoryState by categoryViewModel.deleteCategoryState.collectAsState()
     var isRefreshing by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        categoryViewModel.getAllCategories()
+    LaunchedEffect(deleteCategoryState is UiState.Success) {
+        if (deleteCategoryState is UiState.Success){
+            categoryViewModel.getAllCategories()
+        }
     }
 
     LaunchedEffect(isRefreshing) {
@@ -84,7 +94,16 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
                                         typeCategory[index].id?.let { categoryId ->
                                             categoryViewModel.deleteCategoryById(categoryId)
                                         }
-                                        categoryViewModel.getAllCategories()
+                                    },
+                                    onEdit = {
+
+                                        val gson = Gson()
+                                        val categoryJson = gson.toJson(typeCategory[index])
+                                        val encodedCategory = URLEncoder.encode(
+                                            categoryJson,
+                                            StandardCharsets.UTF_8.toString()
+                                        )
+                                        navController.navigate("${Screens.EditCategoryScreen.route}/$encodedCategory")
                                     }
                                 )
                             }
@@ -100,7 +119,9 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
                     )
                 }
 
-                is UiState.Idle -> {}
+                is UiState.Idle -> {
+                    categoryViewModel.getAllCategories()
+                }
             }
         }
     }
@@ -109,7 +130,8 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel) {
 @Composable
 fun CategoryCard(
     name: String,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -127,12 +149,23 @@ fun CategoryCard(
             color = Color.White
         )
 
-        IconButton(onClick = onDeleteClick) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete Category",
-                tint = Color.Red
-            )
+        Row{
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Category"
+                )
+            }
+            IconButton(
+                onClick = {
+                    onEdit()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ fun PartyScreen(
             ) {
                 when (selectedTabIndex) {
                     0 -> PartyList(viewModel,navController)
-                    1 -> CategoryList("PARTY", categoryViewModel)
+                    1 -> CategoryList("PARTY", categoryViewModel,navController)
                 }
             }
         }

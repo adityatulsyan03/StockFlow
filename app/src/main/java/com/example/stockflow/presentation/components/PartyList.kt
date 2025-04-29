@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,12 +53,12 @@ fun PartyList(viewModel: PartyViewModel, navController: NavController) {
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshParty")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshParty") ?: false
         if (shouldRefresh) {
             Log.d("Launched Effect","savedStateHandle")
             viewModel.getAllParties()
-            savedStateHandle?.remove<Boolean>("refreshInventory")
+            savedStateHandle?.remove<Boolean>("refreshParty")
         }
     }
 
@@ -156,18 +157,17 @@ fun PartyCard(
     navController: NavController,
     onDeleted: (String) -> Unit
 ) {
+    val gson = Gson()
+    val partyJson = gson.toJson(party)
+    val encodedPartyJson = URLEncoder.encode(
+        partyJson, StandardCharsets.UTF_8.toString()
+    )
     Row(modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(12.dp))
         .background(Color(0xFF1E1E1E)) // Dark theme background
         .clickable {
-
-            val gson = Gson()
-            val partyJson = gson.toJson(party)
-            val encodedPartyBill = URLEncoder.encode(
-                partyJson, StandardCharsets.UTF_8.toString()
-            )
-            navController.navigate("${Screens.PartyDetailScreen.route}/$encodedPartyBill")
+            navController.navigate("${Screens.PartyDetailScreen.route}/$encodedPartyJson")
         }
         .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,17 +180,29 @@ fun PartyCard(
                 text = party.phone, color = Color(0xFFB0BEC5) // Light gray for balance
             )
         }
-        IconButton(
-            onClick = {
-                var a = party.id?:""
-                onDeleted(a)
-                Log.d("Party Id",a)
+        Row{
+            IconButton(
+                onClick = {
+                    var a = party.id ?: ""
+                    onDeleted(a)
+                    Log.d("Party Id", a)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete"
+                )
             }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete"
-            )
+            IconButton(
+                onClick = {
+                    navController.navigate("${Screens.EditPartyScreen.route}/$encodedPartyJson")
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
+            }
         }
     }
 }

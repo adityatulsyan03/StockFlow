@@ -143,19 +143,18 @@ fun ItemCard(
     navController: NavController,
     onDelete: (String) -> Unit
 ) {
+    val gson = Gson()
+    val itemJson = gson.toJson(item)
+    val encodedItem = URLEncoder.encode(
+        itemJson,
+        StandardCharsets.UTF_8.toString()
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFF1E1E1E))
             .clickable {
-
-                val gson = Gson()
-                val itemJson = gson.toJson(item)
-                val encodedItem = URLEncoder.encode(
-                    itemJson,
-                    StandardCharsets.UTF_8.toString()
-                )
                 navController.navigate("${Screens.ItemDetailScreen.route}/$encodedItem")
 
             }
@@ -197,34 +196,28 @@ fun ItemCard(
             )
         }
 
-        IconButton(
-            onClick = {
-                onDelete(item.id?:"")
-            }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete"
-            )
-        }
-
-        IconButton(
-            onClick = {
-
-                val gson = Gson()
-                val itemJson = gson.toJson(item)
-                val encodedItem = URLEncoder.encode(
-                    itemJson,
-                    StandardCharsets.UTF_8.toString()
+        Row{
+            IconButton(
+                onClick = {
+                    onDelete(item.id ?: "")
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete"
                 )
-
-                navController.navigate("${Screens.EditItemScreen.route}/$encodedItem")
             }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit"
-            )
+
+            IconButton(
+                onClick = {
+                    navController.navigate("${Screens.EditItemScreen.route}/$encodedItem")
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
+            }
         }
 
     }

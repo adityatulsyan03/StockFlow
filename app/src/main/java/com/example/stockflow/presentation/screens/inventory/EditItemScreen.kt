@@ -52,10 +52,12 @@ fun EditItemScreen(
     val sellingUnitState by sellingUnitViewModel.sellingUnitsState.collectAsState()
 
     LaunchedEffect(updateItemState) {
-        if (updateItemState is UiState.Success){
+        if (updateItemState is UiState.Success) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshInventory", true)
             navController.popBackStack()
             inventoryViewModel.resetUpdateItemState()
-
         }
     }
 
@@ -63,7 +65,7 @@ fun EditItemScreen(
         sellingUnitViewModel.getAllSellingUnits()
     }
 
-    var photo by remember { mutableStateOf("") }
+    var photo by remember { mutableStateOf(item.photo?:"") }
     var name by remember { mutableStateOf(item.name) }
     var quantity by remember { mutableStateOf(item.quantity.toString()) }
     var sellPrice by remember { mutableStateOf(item.sellPrice.toString()) }
@@ -102,9 +104,8 @@ fun EditItemScreen(
                     FAB(
                         onClick = {
                             inventoryViewModel.updateInventoryById(
-                                inventoryId = item.id?:"",
-                                inventory = Inventory(
-                                    id = item.id?:"",
+                                inventoryId = item.id ?: "",
+                                inventory = item.copy(
                                     photo = photo,
                                     name = name,
                                     quantity = quantity.toIntOrNull() ?: 0,
@@ -120,9 +121,7 @@ fun EditItemScreen(
                                     lowStockAlert = lowStockAlert.toIntOrNull() ?: 0,
                                     storageLocation = storageLocation,
                                     expireDate = expireDate.value?.format(
-                                        DateTimeFormatter.ofPattern(
-                                            "yyyy-MM-dd"
-                                        )
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")
                                     ) ?: ""
                                 )
                             )

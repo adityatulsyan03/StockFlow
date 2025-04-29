@@ -14,14 +14,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.stockflow.data.model.Bills
+import com.example.stockflow.data.model.Category
 import com.example.stockflow.data.model.Inventory
 import com.example.stockflow.data.model.Party
 import com.example.stockflow.presentation.screens.reports.AddBillScreen
 import com.example.stockflow.presentation.screens.category.AddCategoryScreen
+import com.example.stockflow.presentation.screens.category.EditCategoryScreen
 import com.example.stockflow.presentation.screens.inventory.AddItemScreen
 import com.example.stockflow.presentation.screens.inventory.EditItemScreen
 import com.example.stockflow.presentation.screens.party.AddPartyScreen
-import com.example.stockflow.presentation.screens.user.AddSellingUnitScreen
+import com.example.stockflow.presentation.screens.inventory.AddSellingUnitScreen
 import com.example.stockflow.presentation.screens.reports.BillDetailsScreen
 import com.example.stockflow.presentation.screens.reports.BillsScreen
 import com.example.stockflow.presentation.screens.user.DashBoardScreen
@@ -29,6 +31,7 @@ import com.example.stockflow.presentation.screens.reports.DataTableScreen
 import com.example.stockflow.presentation.screens.user.EditUserScreen
 import com.example.stockflow.presentation.screens.inventory.InventoryScreen
 import com.example.stockflow.presentation.screens.inventory.ItemDetailScreen
+import com.example.stockflow.presentation.screens.party.EditPartyScreen
 import com.example.stockflow.presentation.screens.party.PartyDetailScreen
 import com.example.stockflow.presentation.screens.user.LoginScreen
 import com.example.stockflow.presentation.screens.reports.MoneyReportScreen
@@ -187,6 +190,23 @@ fun AppNavigator(
         }
 
         composable(
+            route = "${Screens.EditPartyScreen.route}/{partyJson}",
+            arguments = listOf(navArgument("partyJson") {type = NavType.StringType })
+        ){backStackEntry ->
+            val gson = Gson()
+            val partyJson = backStackEntry.arguments?.getString("partyJson") ?: ""
+            val decodedPartyJson = URLDecoder.decode(partyJson,StandardCharsets.UTF_8.toString())
+            val party = gson.fromJson(decodedPartyJson,Party::class.java)
+
+            EditPartyScreen(
+                party = party,
+                navController = navController,
+                viewModel = partyViewModel,
+                categoryViewModel = categoryViewModel
+            )
+        }
+
+        composable(
             route = "${Screens.AddCategoryScreen.route}/{type}",
             arguments = listOf(navArgument("type") { type = NavType.StringType })
         ) { backStackEntry ->
@@ -197,6 +217,24 @@ fun AppNavigator(
                 viewModel = categoryViewModel,
                 type = type
             )
+        }
+
+        composable(
+            route = "${Screens.EditCategoryScreen.route}/{categoryJson}",
+            arguments = listOf(navArgument("categoryJson") {type = NavType.StringType })
+        ){backStackEntry ->
+
+            val gson = Gson()
+            val categoryJson = backStackEntry.arguments?.getString("categoryJson") ?: ""
+            val decodedCategoryJson = URLDecoder.decode(categoryJson,StandardCharsets.UTF_8.toString())
+            val category = gson.fromJson(decodedCategoryJson,Category::class.java)
+
+            EditCategoryScreen(
+                category = category,
+                viewModel = categoryViewModel,
+                navController = navController
+            )
+
         }
 
         composable(

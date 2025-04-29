@@ -1,4 +1,4 @@
-package com.example.stockflow.presentation.screens.user
+package com.example.stockflow.presentation.screens.inventory
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.stockflow.common.UiState
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.FAB
 import com.example.stockflow.presentation.components.TopBar
@@ -22,6 +23,18 @@ fun AddSellingUnitScreen(
     viewModel: SellingUnitViewModel
 ) {
     var sellingUnitName by remember { mutableStateOf("") }
+
+    val addSellingUnitState by viewModel.addSellingUnitState.collectAsState()
+
+    LaunchedEffect(addSellingUnitState) {
+        if (addSellingUnitState is UiState.Success) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshInventory", true)
+            navController.popBackStack()
+            viewModel.resetAddSellingUnit()
+        }
+    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -38,11 +51,8 @@ fun AddSellingUnitScreen(
                 onClick = {
                     if (sellingUnitName.isNotBlank()) {
                         viewModel.postSellingUnit(
-                            listOf(
-                                SellingUnit(unitName = sellingUnitName)
-                            )
+                            listOf(SellingUnit(unitName = sellingUnitName))
                         )
-                        navController.popBackStack()
                     }
                 },
                 text = "ADD",

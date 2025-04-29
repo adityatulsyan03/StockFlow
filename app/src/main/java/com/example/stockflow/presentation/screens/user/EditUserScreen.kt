@@ -29,26 +29,47 @@ fun EditUserScreen(
     navController: NavController,
     viewModel: UserDetailViewModel
 ) {
-    val userState by viewModel.getUserState.collectAsState()
-    val bankState by viewModel.bankState.collectAsState()
+    val userState = viewModel.getUserState.collectAsState().value
+    val bankState = viewModel.bankState.collectAsState().value
     var user by remember { mutableStateOf<User?>(null) }
     var bank by remember { mutableStateOf<Bank?>(null) }
+    val updateUserState by viewModel.updateUserState.collectAsState()
+    val updateBankState by viewModel.updateBankState.collectAsState()
+
+    LaunchedEffect(updateUserState is UiState.Success,updateBankState is UiState.Success){
+        if (updateUserState is UiState.Success && updateBankState is UiState.Success){
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshUserDetails", true)
+            navController.popBackStack()
+            viewModel.resetUpdateUserState()
+            viewModel.resetUpdateBankState()
+        }
+    }
+
+    // Fetch user and bank data **only if not already loaded**
+    LaunchedEffect(Unit) {
+        if (userState !is UiState.Success) {
+            Log.d("User Screen userState","Success")
+            viewModel.getUserData()
+        }
+        if (bankState !is UiState.Success) {
+            Log.d("User Screen bankState","Success")
+            viewModel.getBankDetails()
+        }
+    }
 
     LaunchedEffect(userState) {
         if (userState is UiState.Success) {
-            Log.d("EditUserScreen", "User data loaded successfully.")
-            user = (userState as UiState.Success<CustomResponse<User>>).data.data
-        } else if (userState is UiState.Failed) {
-            Log.e("EditUserScreen", "Failed to load user data.")
+            Log.d("UserScreen", "Updating user from ViewModel state")
+            user = userState.data.data
         }
     }
 
     LaunchedEffect(bankState) {
         if (bankState is UiState.Success) {
-            Log.d("EditUserScreen", "Bank data loaded successfully.")
-            bank = (bankState as UiState.Success<CustomResponse<Bank>>).data.data
-        } else if (bankState is UiState.Failed) {
-            Log.e("EditUserScreen", "Failed to load bank data.")
+            Log.d("UserScreen", "Updating bank from ViewModel state")
+            bank = bankState.data.data
         }
     }
 
@@ -159,7 +180,6 @@ fun EditUserForm(
                 viewModel.updateBank(updatedBank)
 
                 Log.d("EditUserScreen", "Changes saved, navigating back.")
-                navController.popBackStack()
             },
             modifier = Modifier.fillMaxWidth()
         ) {

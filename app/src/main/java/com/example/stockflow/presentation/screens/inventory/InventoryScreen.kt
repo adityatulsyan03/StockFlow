@@ -99,7 +99,11 @@ fun InventoryScreen(
             ) {
                 when (selectedTabIndex) {
                     0 -> ItemList(viewModel,navController)
-                    1 -> CategoryList(screen = "INVENTORY", categoryViewModel = categoryViewModel)
+                    1 -> CategoryList(
+                        screen = "INVENTORY",
+                        categoryViewModel = categoryViewModel,
+                        navController = navController
+                    )
                 }
             }
         }

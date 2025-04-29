@@ -65,12 +65,7 @@ fun AddItemScreen(
     Log.d("Screen","Add Inventory Screen")
 
     val getCategoriesState by categoryViewModel.getCategoriesState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        Log.d("Launched Effect","Fetching Category for Inventory")
-        categoryViewModel.getAllCategoriesByType("Inventory")
-    }
-
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     var isRefreshing by remember { mutableStateOf(false) }
 
     val photo by remember { mutableStateOf("") }
@@ -89,6 +84,16 @@ fun AddItemScreen(
     var storageLocation by remember { mutableStateOf("") }
     var expireDate by remember { mutableStateOf<LocalDate?>(null) }
 
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
+        if (shouldRefresh) {
+            Log.d("Launched Effect","savedStateHandle")
+            categoryViewModel.getAllCategoriesByType("Inventory")
+            sellingUnitViewModel.getAllSellingUnits()
+            savedStateHandle?.remove<Boolean>("refreshInventory")
+        }
+    }
+
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             sellingUnitViewModel.getAllSellingUnits()
@@ -97,11 +102,6 @@ fun AddItemScreen(
     }
 
     val sellingUnitState by sellingUnitViewModel.sellingUnitsState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        sellingUnitViewModel.getAllSellingUnits()
-    }
-
     val addInventoryState by viewModel.addInventoryState.collectAsState()
 
     LaunchedEffect(addInventoryState) {
@@ -346,7 +346,9 @@ fun AddItemScreen(
                     is UiState.Failed -> {
                         ErrorScreen()
                     }
-                    is UiState.Idle -> {}
+                    is UiState.Idle -> {
+                        categoryViewModel.getAllCategoriesByType("Inventory")
+                    }
                     is UiState.Loading -> {
                         LoadingScreen()
                     }
@@ -368,7 +370,9 @@ fun AddItemScreen(
                 LoadingScreen()
             }
 
-            is UiState.Idle -> {}
+            is UiState.Idle -> {
+                sellingUnitViewModel.getAllSellingUnits()
+            }
         }
     }
 }

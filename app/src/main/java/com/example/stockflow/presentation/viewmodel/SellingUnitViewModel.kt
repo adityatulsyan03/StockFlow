@@ -23,11 +23,15 @@ class SellingUnitViewModel @Inject constructor(
     private val _sellingUnitsState = MutableStateFlow<UiState<CustomResponse<List<SellingUnit>>>>(UiState.Idle)
     val sellingUnitsState = _sellingUnitsState.asStateFlow()
 
-    private val _postSellingUnitState = MutableStateFlow<UiState<CustomResponse<List<SellingUnit>>>>(UiState.Idle)
-    val postSellingUnitState = _postSellingUnitState.asStateFlow()
+    private val _addSellingUnitState = MutableStateFlow<UiState<CustomResponse<List<SellingUnit>>>>(UiState.Idle)
+    val addSellingUnitState = _addSellingUnitState.asStateFlow()
 
     private val _deleteSellingUnitState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteSellingUnitState = _deleteSellingUnitState.asStateFlow()
+
+    fun resetAddSellingUnit(){
+        _addSellingUnitState.value = UiState.Idle
+    }
 
     fun getAllSellingUnits() {
         _sellingUnitsState.value = UiState.Loading
@@ -51,7 +55,7 @@ class SellingUnitViewModel @Inject constructor(
     }
 
     fun postSellingUnit(sellingUnit: List<SellingUnit>) {
-        _postSellingUnitState.value = UiState.Loading
+        _addSellingUnitState.value = UiState.Loading
 
         viewModelScope.launch {
             try {
@@ -59,14 +63,14 @@ class SellingUnitViewModel @Inject constructor(
                 Log.d("SellingUnitViewModel", "Token: $token")
 
                 sellingUnitRepo.postSellingUnit(token, sellingUnit).collect { response ->
-                    _postSellingUnitState.value = response
+                    _addSellingUnitState.value = response
                     if (response is UiState.Success) {
                         Log.d("SellingUnitViewModel", "Selling unit added successfully: ${response.data}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e("SellingUnitViewModel", "Error adding selling unit: ${e.message}")
-                _postSellingUnitState.value = UiState.Failed(e.message ?: "Unknown error occurred")
+                _addSellingUnitState.value = UiState.Failed(e.message ?: "Unknown error occurred")
             }
         }
     }
