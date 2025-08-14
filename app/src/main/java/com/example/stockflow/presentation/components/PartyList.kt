@@ -48,23 +48,15 @@ fun PartyList(viewModel: PartyViewModel, navController: NavController) {
 
     val partiesState by viewModel.getAllPartiesState.collectAsState()
     val partyDeletedStatus by viewModel.deletePartyState.collectAsState()
+    val createPartyState by viewModel.createPartyState.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshParty")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshParty") ?: false
-        if (shouldRefresh) {
-            Log.d("Launched Effect","savedStateHandle")
-            viewModel.getAllParties()
-            savedStateHandle?.remove<Boolean>("refreshParty")
-        }
-    }
-
     LaunchedEffect(partyDeletedStatus) {
         if (partyDeletedStatus is UiState.Success){
-            Log.d("Launched Effect","inventoryDeletedState")
+            Log.d("Launched Effect","partyDeletedState")
             viewModel.getAllParties()
             viewModel.resetDeletePartyState()
         }

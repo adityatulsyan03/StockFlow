@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import com.example.stockflow.presentation.navigation.BottomNavBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.example.stockflow.utils.safePopBackStack
 
 @Composable
@@ -42,6 +44,23 @@ fun InventoryScreen(
     Log.d("Screen","Inventory Screen")
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
+        if (shouldRefresh) {
+            selectedTabIndex = 0
+            savedStateHandle.remove<Boolean>("refreshInventory")
+        }
+    }
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshCategory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshCategory") ?: false
+        if (shouldRefresh) {
+            selectedTabIndex = 1
+            savedStateHandle?.remove<Boolean>("refreshCategory")
+        }
+    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -59,15 +78,9 @@ fun InventoryScreen(
                 onClick = {
                     val type = "INVENTORY"
                     if (selectedTabIndex == 0) {
-                        navController.navigate(Screens.AddItemScreen.route) {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.safeNavigateOnce(Screens.AddItemScreen.route)
                     } else {
-                        navController.navigate("${Screens.AddCategoryScreen.route}/$type") {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.safeNavigateOnce("${Screens.AddCategoryScreen.route}/$type")
                     }
                 },
                 text = if (selectedTabIndex == 0) "ADD NEW ITEM" else "ADD CATEGORY",

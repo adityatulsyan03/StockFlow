@@ -22,6 +22,7 @@ import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.AccessTokenBody
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -51,7 +52,7 @@ fun LoginScreen(
         is UiState.Success -> {
             Log.d("LoginScreen", "Success")
             LaunchedEffect(authUserState) {
-                navController.navigate(Screens.DashBoardScreen.route)
+                navController.safeNavigateOnce(Screens.DashBoardScreen.route)
             }
         }
         is UiState.Failed -> {
@@ -69,6 +70,7 @@ fun LoginScreen(
         userCurr?.getIdToken(true)
             ?.addOnSuccessListener { tokenResult ->
                 val idToken = tokenResult.token
+                Log.d("Token", idToken.toString())
                 if (idToken != null) {
                     Log.d("Google Auth", "Token: $idToken")
                     viewModel.addUser(AccessTokenBody(token = idToken))

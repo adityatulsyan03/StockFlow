@@ -49,6 +49,7 @@ import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.SellingUnitViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.example.stockflow.utils.safePopBackStack
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -108,6 +109,7 @@ fun AddItemScreen(
 
     LaunchedEffect(addInventoryState) {
         if (addInventoryState is UiState.Success) {
+            viewModel.getAllInventories()
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshInventory", true)
@@ -223,7 +225,7 @@ fun AddItemScreen(
                                             selectedOption = sellPriceUnit,
                                             onOptionSelected = {
                                                 if (it == "Add New") {
-                                                    navController.navigate(Screens.AddSellingUnit.route)
+                                                    navController.safeNavigateOnce(Screens.AddSellingUnit.route)
                                                 } else {
                                                     sellPriceUnit = it
                                                 }

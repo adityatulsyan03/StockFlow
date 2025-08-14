@@ -30,11 +30,14 @@ fun CategoryList(screen: String, categoryViewModel: CategoryViewModel, navContro
 
     val categoryState by categoryViewModel.getCategoriesState.collectAsState()
     val deleteCategoryState by categoryViewModel.deleteCategoryState.collectAsState()
+    val addCategoryState by categoryViewModel.addCategoryState.collectAsState()
     var isRefreshing by remember { mutableStateOf(false) }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
     LaunchedEffect(deleteCategoryState is UiState.Success) {
         if (deleteCategoryState is UiState.Success){
             categoryViewModel.getAllCategories()
+            categoryViewModel.resetDeleteCategoryState()
         }
     }
 

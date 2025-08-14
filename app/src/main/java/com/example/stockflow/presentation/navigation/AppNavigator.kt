@@ -3,6 +3,7 @@ package com.example.stockflow.presentation.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bills
 import com.example.stockflow.data.model.Category
 import com.example.stockflow.data.model.Inventory
@@ -103,6 +105,14 @@ fun AppNavigator(
         composable(
             route = Screens.InventoryScreen.route
         ) {
+            LaunchedEffect(Unit) {
+                if (inventoryViewModel.getAllInventoriesState.value is UiState.Idle) {
+                    inventoryViewModel.getAllInventories()
+                }
+                if (categoryViewModel.getCategoriesState.value is UiState.Idle) {
+                    categoryViewModel.getAllCategories()
+                }
+            }
             InventoryScreen(
                 navController = navController,
                 viewModel = inventoryViewModel,
@@ -113,6 +123,14 @@ fun AppNavigator(
         composable(
             route = Screens.PartyScreen.route
         ) {
+            LaunchedEffect(Unit) {
+                if (partyViewModel.getAllPartiesState.value is UiState.Idle) {
+                    partyViewModel.getAllParties()
+                }
+                if (categoryViewModel.getCategoriesState.value is UiState.Idle) {
+                    categoryViewModel.getAllCategories()
+                }
+            }
             PartyScreen(
                 navController = navController,
                 viewModel = partyViewModel,

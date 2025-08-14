@@ -16,6 +16,7 @@ import com.example.stockflow.presentation.navigation.BottomNavBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.example.stockflow.utils.safePopBackStack
 
 @Composable
@@ -28,6 +29,23 @@ fun PartyScreen(
     Log.d("Screen","Party Screen")
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshParty")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshParty") ?: false
+        if (shouldRefresh) {
+            selectedTabIndex = 0
+            savedStateHandle.remove<Boolean>("refreshParty")
+        }
+    }
+
+    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshCategory")) {
+        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshCategory") ?: false
+        if (shouldRefresh) {
+            selectedTabIndex = 1
+            savedStateHandle.remove<Boolean>("refreshCategory")
+        }
+    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -45,15 +63,9 @@ fun PartyScreen(
                 onClick = {
                     val type = "PARTY"
                     if (selectedTabIndex == 0) {
-                        navController.navigate(Screens.AddPartyScreen.route) {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.safeNavigateOnce(Screens.AddPartyScreen.route)
                     } else {
-                        navController.navigate("${Screens.AddCategoryScreen.route}/$type") {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.safeNavigateOnce("${Screens.AddCategoryScreen.route}/$type")
                     }
                 },
                 text = if (selectedTabIndex == 0) "ADD CUSTOMER/PARTY" else "ADD CATEGORY",

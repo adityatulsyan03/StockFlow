@@ -37,19 +37,11 @@ import java.nio.charset.StandardCharsets
 fun ItemList(viewModel: InventoryViewModel, navController: NavController) {
     val inventoryState by viewModel.getAllInventoriesState.collectAsState()
     val inventoryDeletedState by viewModel.deleteInventoryState.collectAsState()
+    val addInventoryState by viewModel.addInventoryState.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
-        if (shouldRefresh) {
-            Log.d("Launched Effect","savedStateHandle")
-            viewModel.getAllInventories()
-            savedStateHandle?.remove<Boolean>("refreshInventory")
-        }
-    }
 
     LaunchedEffect(inventoryDeletedState) {
         if (inventoryDeletedState is UiState.Success){

@@ -1,6 +1,7 @@
 package com.example.stockflow.utils
 
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -34,4 +35,17 @@ fun NavController.safePopBackStack(): Boolean {
     }
 
     return result
+}
+
+fun NavController.navigateBottomBar(route: String) {
+    val currentRoute = this.currentDestination?.route
+    if (currentRoute == route) return
+
+    this.navigate(route) {
+        popUpTo(this@navigateBottomBar.graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import com.example.stockflow.utils.navigateBottomBar
 
 sealed class BottomNavOption(
     val route: String,
@@ -21,10 +22,7 @@ sealed class BottomNavOption(
     data object DashBoardScreen : BottomNavOption(
         route = Screens.DashBoardScreen.route,
         onOptionClicked = {
-            it.navigate(Screens.DashBoardScreen.route) {
-                popUpTo(it.graph.startDestinationId)
-                launchSingleTop = true
-            }
+            it.navigateBottomBar(Screens.DashBoardScreen.route)
         },
         label = "Dashboard",
         unselectedIcon = Icons.Outlined.Home,
@@ -34,10 +32,7 @@ sealed class BottomNavOption(
     data object PartyScreen : BottomNavOption(
         route = Screens.PartyScreen.route,
         onOptionClicked = {
-            it.navigate(Screens.PartyScreen.route) {
-                popUpTo(it.graph.startDestinationId)
-                launchSingleTop = true
-            }
+            it.navigateBottomBar(Screens.PartyScreen.route)
         },
         label = "Party",
         unselectedIcon = Icons.Outlined.Person,
@@ -47,10 +42,7 @@ sealed class BottomNavOption(
     data object InventoryScreen : BottomNavOption(
         route = Screens.InventoryScreen.route,
         onOptionClicked = {
-            it.navigate(Screens.InventoryScreen.route) {
-                popUpTo(it.graph.startDestinationId)
-                launchSingleTop = true
-            }
+            it.navigateBottomBar(Screens.InventoryScreen.route)
         },
         label = "Inventory",
         unselectedIcon = Icons.Outlined.Category,

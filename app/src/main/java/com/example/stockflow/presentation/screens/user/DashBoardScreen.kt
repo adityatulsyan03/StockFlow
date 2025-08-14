@@ -49,6 +49,7 @@ import com.example.stockflow.presentation.navigation.BottomNavBar
 import com.example.stockflow.presentation.navigation.Screens
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.UserDetailViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.firebase.auth.ktx.auth
@@ -64,7 +65,7 @@ fun DashBoardScreen(
     billViewModel: BillsViewModel
 ) {
 
-    Log.d("Screen","DashBoard Screen")
+    Log.d("Screen", "DashBoard Screen")
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRefreshing) {
@@ -94,6 +95,12 @@ fun DashBoardScreen(
         if (billState is UiState.Idle) billViewModel.getAllBills()
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.getUserData()
+        viewModel.getBankDetails()
+        billViewModel.getAllBills()
+    }
+
     BackHandler(enabled = drawerState.isOpen) {
         coroutineScope.launch { drawerState.close() }
     }
@@ -109,7 +116,7 @@ fun DashBoardScreen(
             contentAlignment = Alignment.TopStart,
             bottomBar = { BottomNavBar(navController) },
             topBar = {
-                TopBarContent(userState, navController, coroutineScope, drawerState)
+                TopBarContent(userState, navController, coroutineScope, drawerState, viewModel)
             }) {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
@@ -131,7 +138,7 @@ fun DashBoardScreen(
                     }
                     item {
                         Button(
-                            onClick = { navController.navigate(Screens.AddBillScreen.route) },
+                            onClick = { navController.safeNavigateOnce(Screens.AddBillScreen.route) },
                         ) {
                             Text(text = "+ Bill | Invoice", fontSize = 20.sp)
                         }
@@ -149,7 +156,7 @@ fun BillStateContent(billState: UiState<CustomResponse<List<Bills>>>) {
         is UiState.Failed -> ErrorScreen()
         is UiState.Success -> {
             val bills = billState.data.data
-            BillsList(bills?.subList(0,min(3,bills.size)) ?: emptyList())
+            BillsList(bills?.subList(0, min(3, bills.size)) ?: emptyList())
         }
     }
 }
@@ -180,7 +187,8 @@ fun TopBarContent(
     userState: UiState<CustomResponse<User>>,
     navController: NavController,
     coroutineScope: CoroutineScope,
-    drawerState: DrawerState
+    drawerState: DrawerState,
+    viewModel: UserDetailViewModel
 ) {
     val user = (userState as? UiState.Success<CustomResponse<User>>)?.data?.data
 
@@ -190,15 +198,17 @@ fun TopBarContent(
         onNavigationClick = { coroutineScope.launch { drawerState.open() } },
         navigationIconContentDescription = "Open Sidebar",
         onTitleClick = {
-            navController.navigate(Screens.UserScreen.route) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.safeNavigateOnce(Screens.UserScreen.route)
         },
         trailingIcon = Icons.Outlined.Clear,
         onTrailingClick = {
+            viewModel.logout()
             Firebase.auth.signOut()
-            navController.navigate(Screens.LoginScreen.route)
+            Log.d("FireBase Auth", Firebase.auth.currentUser.toString())
+            navController.navigate(Screens.LoginScreen.route) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
         },
         trailingIconContentDescription = "Logout"
     )

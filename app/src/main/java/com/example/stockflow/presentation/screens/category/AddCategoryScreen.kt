@@ -45,6 +45,10 @@ fun AddCategoryScreen(
 
     LaunchedEffect(addCategoryState) {
         if (addCategoryState is UiState.Success){
+            viewModel.getAllCategories()
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshCategory", true)
             navController.safePopBackStack()
             viewModel.resetAddCategoryState()
         }
@@ -73,7 +77,6 @@ fun AddCategoryScreen(
                             )
                         )
                     )
-                    navController.safePopBackStack()
                 },
                 text = "ADD",
                 extended = true

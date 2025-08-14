@@ -46,6 +46,7 @@ import com.example.stockflow.presentation.screens.user.ErrorScreen
 import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.CategoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.utils.safeNavigateOnce
 import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -66,6 +67,7 @@ fun AddPartyScreen(
     LaunchedEffect(addPartyState is UiState.Success) {
         if (addPartyState is UiState.Success) {
             Log.d("Add Party", "UiState Success")
+            viewModel.getAllParties()
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refreshParty", true)

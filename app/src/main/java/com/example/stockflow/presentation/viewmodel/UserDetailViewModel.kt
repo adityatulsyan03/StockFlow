@@ -155,4 +155,13 @@ class UserDetailViewModel @Inject constructor(
         }
     }
 
+    fun logout() {
+        _adduser.value = UiState.Idle
+        _getUserState.value = UiState.Idle
+        _deleteUserState.value = UiState.Idle
+        _updateUserState.value = UiState.Idle
+        _bankState.value = UiState.Idle
+        _updateBankState.value = UiState.Idle
+    }
+
 }

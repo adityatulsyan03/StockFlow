@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class UserRepo @Inject constructor(
@@ -78,6 +79,15 @@ class UserRepo @Inject constructor(
             } else {
                 emit(UiState.Failed(message = response.message ?: "Failed to add user"))
                 Log.d("User Data", response.message.toString())
+            }
+        } catch (e: HttpException) {
+            if (e.code() == 409) {
+                // User already exists, treat as successful login
+                emit(UiState.Success(data = CustomResponse("OK", "User login successful", null), message = "User login successful"))
+                Log.d("User Data", "User already exists (409), proceeding with login")
+            } else {
+                emit(UiState.Failed(message = "HTTP ${e.code()}: ${e.message()}"))
+                Log.d("User Data", "HTTP ${e.code()}: ${e.message()}")
             }
         } catch (e: Exception) {
             emit(UiState.Failed(message = e.message ?: "An unexpected error occurred"))
