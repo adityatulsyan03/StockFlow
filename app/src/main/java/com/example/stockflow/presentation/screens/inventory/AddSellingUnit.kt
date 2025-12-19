@@ -29,11 +29,9 @@ fun AddSellingUnitScreen(
 
     LaunchedEffect(addSellingUnitState) {
         if (addSellingUnitState is UiState.Success) {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshSellingUnits", true)
-            navController.safePopBackStack()
             viewModel.resetAddSellingUnit()
+            viewModel.resetGetSellingUnitsState()
+            navController.safePopBackStack()
         }
     }
 

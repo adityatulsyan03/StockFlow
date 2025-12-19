@@ -43,14 +43,9 @@ fun BillsScreen(
 
     val billState by viewModel.billsState.collectAsState()
 
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshBill")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshBill") ?: false
-        if (shouldRefresh) {
-            Log.d("Launched Effect","savedStateHandle")
-//            viewModel.getAllBills()
-            savedStateHandle.remove<Boolean>("refreshBill")
+    LaunchedEffect(Unit) {
+        if(billState is UiState.Idle){
+            viewModel.getAllBills()
         }
     }
 

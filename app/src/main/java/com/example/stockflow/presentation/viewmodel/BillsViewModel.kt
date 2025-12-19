@@ -39,6 +39,22 @@ class BillsViewModel @Inject constructor(
     private val _billsByDateRangeState = MutableStateFlow<UiState<CustomResponse<List<Bills>>>>(UiState.Idle)
     val billsByDateRangeState = _billsByDateRangeState.asStateFlow()
 
+    fun resetGetBillState(){
+        _billsState.value = UiState.Idle
+    }
+
+    fun resetBillByIdState(){
+        _billByIdState.value = UiState.Idle
+    }
+
+    fun resetBillsByPartyState(){
+        _billsByPartyState.value = UiState.Idle
+    }
+
+    fun resetBillsByDateRangeState(){
+        _billsByDateRangeState.value = UiState.Idle
+    }
+
     fun resetAddBillState(){
         _addBillState.value = UiState.Idle
     }

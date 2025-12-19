@@ -42,6 +42,14 @@ class InventoryViewModel @Inject constructor(
         _selectedTabIndex.value = index
     }
 
+    fun resetGetInventoryByIdState() {
+        _getInventoryByIdState.value = UiState.Idle
+    }
+
+    fun resetGetAllInventoriesState() {
+        _getAllInventoriesState.value = UiState.Idle
+    }
+
     fun resetAddItemState() {
         _addInventoryState.value = UiState.Idle
     }

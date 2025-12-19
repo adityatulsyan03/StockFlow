@@ -40,15 +40,6 @@ fun ItemList(viewModel: InventoryViewModel, navController: NavController) {
 
     var isRefreshing by remember { mutableStateOf(false) }
 
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshInventory")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshInventory") ?: false
-        if (shouldRefresh) {
-            savedStateHandle.remove<Boolean>("refreshInventory")
-        }
-    }
-
     LaunchedEffect(inventoryDeletedState) {
         if (inventoryDeletedState is UiState.Success){
             Log.d("Launched Effect","inventoryDeletedState")

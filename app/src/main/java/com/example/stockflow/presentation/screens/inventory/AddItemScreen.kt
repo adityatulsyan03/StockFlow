@@ -68,7 +68,6 @@ fun AddItemScreen(
     Log.d("Screen","Add Inventory Screen")
 
     val getCategoriesState by categoryViewModel.getCategoriesState.collectAsState()
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     var isRefreshing by remember { mutableStateOf(false) }
 
     val photo by remember { mutableStateOf("") }
@@ -87,12 +86,13 @@ fun AddItemScreen(
     var storageLocation by remember { mutableStateOf("") }
     var expireDate by remember { mutableStateOf<LocalDate?>(null) }
 
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshSellingUnits")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshSellingUnits") ?: false
-        if (shouldRefresh) {
-            Log.d("Launched Effect","savedStateHandle")
+    val sellingUnitState by sellingUnitViewModel.sellingUnitsState.collectAsState()
+    val addInventoryState by viewModel.addInventoryState.collectAsState()
+
+    LaunchedEffect(sellingUnitState) {
+        if (sellingUnitState is UiState.Idle) {
+            Log.d("Add Item Screen", "Selling Unit Screen Launched Effect")
             sellingUnitViewModel.getAllSellingUnits()
-            savedStateHandle.remove<Boolean>("refreshSellingUnits")
         }
     }
 
@@ -103,19 +103,13 @@ fun AddItemScreen(
         }
     }
 
-    val sellingUnitState by sellingUnitViewModel.sellingUnitsState.collectAsState()
-    val addInventoryState by viewModel.addInventoryState.collectAsState()
-
-//    LaunchedEffect(addInventoryState) {
-//        if (addInventoryState is UiState.Success) {
-//            viewModel.getAllInventories()
-//            navController.previousBackStackEntry
-//                ?.savedStateHandle
-//                ?.set("refreshInventory", true)
-//            navController.safePopBackStack()
-//            viewModel.resetAddItemState()
-//        }
-//    }
+    LaunchedEffect(addInventoryState) {
+        if (addInventoryState is UiState.Success) {
+            viewModel.resetGetAllInventoriesState()
+            viewModel.resetAddItemState()
+            navController.safePopBackStack()
+        }
+    }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -126,12 +120,7 @@ fun AddItemScreen(
                 LoadingScreen()
             }
             is UiState.Success -> {
-                viewModel.getAllInventories()
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("refreshInventory", true)
-                navController.safePopBackStack()
-                viewModel.resetAddItemState()
+
             }
             else -> {}
         }
@@ -394,9 +383,7 @@ fun AddItemScreen(
                 LoadingScreen()
             }
 
-            is UiState.Idle -> {
-                sellingUnitViewModel.getAllSellingUnits()
-            }
+            is UiState.Idle -> {}
         }
     }
 }

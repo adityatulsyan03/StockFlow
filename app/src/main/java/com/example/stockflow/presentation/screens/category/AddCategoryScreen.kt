@@ -47,18 +47,15 @@ fun AddCategoryScreen(
 
     val addCategoryState by viewModel.addCategoryState.collectAsState()
 
-//    LaunchedEffect(addCategoryState) {
-//        if (addCategoryState is UiState.Success){
-//            viewModel.getAllCategories()
-//            navController.previousBackStackEntry
-//                ?.savedStateHandle
-//                ?.set("refreshCategory", true)
-//            navController.safePopBackStack()
-//            viewModel.resetAddCategoryState()
-//        }
-//    }
-
     var categoryName by remember { mutableStateOf("") }
+
+    LaunchedEffect(addCategoryState) {
+        if (addCategoryState is UiState.Success) {
+            viewModel.resetGetCategoriesState()
+            viewModel.resetAddCategoryState()
+            navController.safePopBackStack()
+        }
+    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -114,12 +111,7 @@ fun AddCategoryScreen(
                     )
                 }
                 is UiState.Success -> {
-                    viewModel.getAllCategories()
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("refreshCategory", true)
-                    navController.safePopBackStack()
-                    viewModel.resetAddCategoryState()
+
                 }
                 else -> {}
             }

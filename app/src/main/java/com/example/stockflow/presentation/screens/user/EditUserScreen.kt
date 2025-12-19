@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bank
+import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.CustomTextField
@@ -30,19 +31,19 @@ fun EditUserScreen(
     navController: NavController,
     viewModel: UserDetailViewModel
 ) {
-    val userState = viewModel.getUserState.collectAsState().value
-    val bankState = viewModel.bankState.collectAsState().value
+    val userState by viewModel.getUserState.collectAsState()
+    val bankState by viewModel.bankState.collectAsState()
     val updateUserState by viewModel.updateUserState.collectAsState()
     val updateBankState by viewModel.updateBankState.collectAsState()
 
-    LaunchedEffect(updateUserState is UiState.Success,updateBankState is UiState.Success){
+    LaunchedEffect(updateUserState,updateBankState){
         if (updateUserState is UiState.Success && updateBankState is UiState.Success){
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshUserDetails", true)
+            Log.d("EditUserScreen", "Data updated successfully.")
             navController.safePopBackStack()
             viewModel.resetUpdateUserState()
             viewModel.resetUpdateBankState()
+            viewModel.resetBankState()
+            viewModel.resetGetUserState()
         }
     }
 
@@ -78,11 +79,30 @@ fun EditUserScreen(
             }
 
             userState is UiState.Success && bankState is UiState.Success -> {
-                val user = userState.data.data
-                val bank = bankState.data.data
+                val user = (userState as UiState.Success<CustomResponse<User>>).data.data
+                val bank = (bankState as UiState.Success<CustomResponse<Bank>>).data.data
                 if(user != null && bank != null){
                     EditUserForm(user, bank, viewModel)
                 }
+            }
+
+            updateUserState is UiState.Loading || updateBankState is UiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                    Log.d("EditUserScreen", "Updating user and bank data...")
+                }
+            }
+
+            updateUserState is UiState.Failed || updateBankState is UiState.Failed -> {
+                Text("Failed to update data", color = Color.Red, fontSize = 18.sp)
+                Log.e("EditUserScreen", "Error while updating data.")
+            }
+
+            updateUserState  is UiState.Success && updateBankState is UiState.Success -> {
+            }
+
+            else -> {
+                Log.e("EditUserScreen", "Unexpected state: $userState, $bankState")
             }
         }
     }

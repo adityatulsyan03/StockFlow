@@ -80,7 +80,7 @@ fun PartyList(viewModel: PartyViewModel, navController: NavController) {
                 }
                 is UiState.Success -> {
                     Log.d("Launched Effect","partyDeletedState")
-                    viewModel.getAllParties()
+                    viewModel.resetGetAllPartiesState()
                     viewModel.resetDeletePartyState()
                 }
                 else -> {}

@@ -66,16 +66,20 @@ fun EditPartyScreen(
     val updatePartyState by viewModel.updatePartyState.collectAsState()
     val getCategoriesState by categoryViewModel.getCategoriesState.collectAsState()
 
+    LaunchedEffect(updatePartyState) {
+        if (updatePartyState is UiState.Success) {
+            navController.safePopBackStack()
+            viewModel.resetUpdatePartyState()
+            viewModel.resetGetAllPartiesState()
+        }
+    }
+
     when(updatePartyState){
         is UiState.Loading -> {
             LoadingScreen()
         }
         is UiState.Success -> {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshParty", true)
-            navController.safePopBackStack()
-            viewModel.resetUpdatePartyState()
+
         }
         else -> {}
     }

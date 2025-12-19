@@ -22,6 +22,7 @@ import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
 import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
+import com.example.stockflow.presentation.viewmodel.ReportViewModel
 import com.example.stockflow.utils.safePopBackStack
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -29,24 +30,26 @@ import com.example.stockflow.utils.safePopBackStack
 fun BillDetailsScreen(
     navController: NavController,
     viewModel: BillsViewModel,
-    bill: Bills
+    bill: Bills,
+    reportViewModel: ReportViewModel
 ) {
     Log.d("Screen","Bill Detail Screen")
 
     val deleteBillState by viewModel.deleteBillState.collectAsState()
 
+    LaunchedEffect(deleteBillState) {
+        if (deleteBillState is UiState.Success) {
+            Log.d("Delete Bill","UiState Success")
+            navController.safePopBackStack()
+            viewModel.resetDeleteBillState()
+            viewModel.resetGetBillState()
+            reportViewModel.resetState()
+        }
+    }
+
     when(deleteBillState){
         is UiState.Loading -> {
             LoadingScreen()
-        }
-        is UiState.Success -> {
-            Log.d("Add Bill","UiState Success")
-            viewModel.getAllBills()
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshBill", true)
-            navController.safePopBackStack()
-            viewModel.resetDeleteBillState()
         }
         else -> {}
     }

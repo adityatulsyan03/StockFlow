@@ -40,8 +40,24 @@ class UserDetailViewModel @Inject constructor(
     private val _updateBankState = MutableStateFlow<UiState<CustomResponse<Bank>>>(UiState.Idle)
     val updateBankState = _updateBankState.asStateFlow()
 
+    fun resetAddUserState(){
+        _adduser.value = UiState.Idle
+    }
+
+    fun resetGetUserState(){
+        _getUserState.value = UiState.Idle
+    }
+
+    fun resetDeleteUserState(){
+        _deleteUserState.value = UiState.Idle
+    }
+
     fun resetUpdateUserState(){
         _updateUserState.value = UiState.Idle
+    }
+
+    fun resetBankState(){
+        _bankState.value = UiState.Idle
     }
 
     fun resetUpdateBankState(){

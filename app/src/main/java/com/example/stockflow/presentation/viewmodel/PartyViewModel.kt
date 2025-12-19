@@ -42,6 +42,14 @@ class PartyViewModel @Inject constructor(
         _selectedTabIndex.value = index
     }
 
+    fun resetGetPartyByIdState() {
+        _getPartyByIdState.value = UiState.Idle
+    }
+
+    fun resetGetAllPartiesState() {
+        _getAllPartiesState.value = UiState.Idle
+    }
+
     fun resetCreatePartyState() {
         _createPartyState.value = UiState.Idle
     }

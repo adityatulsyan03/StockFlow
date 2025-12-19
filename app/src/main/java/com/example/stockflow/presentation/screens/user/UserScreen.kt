@@ -25,6 +25,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.stockflow.common.UiState
 import com.example.stockflow.data.model.Bank
+import com.example.stockflow.data.model.CustomResponse
 import com.example.stockflow.data.model.User
 import com.example.stockflow.presentation.components.AppScaffold
 import com.example.stockflow.presentation.components.TopBar
@@ -54,20 +55,19 @@ fun UserScreen(
         }
     }
 
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val userState by viewModel.getUserState.collectAsState()
+    val bankState by viewModel.bankState.collectAsState()
 
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshUserDetails")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshUserDetails") ?: false
-        if (shouldRefresh) {
-            Log.d("Launched Effect","savedStateHandle")
+    LaunchedEffect(userState,bankState) {
+        if (userState is UiState.Idle) {
+            Log.d("User Screen", "User State was Idle")
             viewModel.getUserData()
+        }
+        if (bankState is UiState.Idle) {
+            Log.d("User Screen", "Bank State was Idle")
             viewModel.getBankDetails()
-            savedStateHandle.remove<Boolean>("refreshUserDetails")
         }
     }
-
-    val userState = viewModel.getUserState.collectAsState().value
-    val bankState = viewModel.bankState.collectAsState().value
 
     StockFlowTheme {
         AppScaffold(
@@ -104,7 +104,7 @@ fun UserScreen(
 
                         is UiState.Success -> {
 
-                            val user = userState.data.data
+                            val user = (userState as UiState.Success<CustomResponse<User>>).data.data
 
                             Log.d("User Data", user?.toString() ?: "No user data")
                             Image(
@@ -184,7 +184,7 @@ fun UserScreen(
 
                         is UiState.Success -> {
 
-                            val bankData = bankState.data.data
+                            val bankData = (bankState as UiState.Success<CustomResponse<Bank>>).data.data
 
                             val details = listOf(
                                 Pair("Bank Account Number", bankData?.bankAccountNumber ?: "N/A"),

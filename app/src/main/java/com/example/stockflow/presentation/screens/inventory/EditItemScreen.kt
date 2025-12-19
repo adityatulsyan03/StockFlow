@@ -52,16 +52,19 @@ fun EditItemScreen(
     val updateItemState by inventoryViewModel.updateInventoryState.collectAsState()
     val sellingUnitState by sellingUnitViewModel.sellingUnitsState.collectAsState()
 
+    LaunchedEffect(updateItemState) {
+        if (updateItemState is UiState.Success) {
+            inventoryViewModel.resetGetAllInventoriesState()
+            inventoryViewModel.resetUpdateItemState()
+            navController.safePopBackStack()
+        }
+    }
+
     when(updateItemState){
         is UiState.Loading -> {
             LoadingScreen()
         }
         is UiState.Success -> {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshInventory", true)
-            navController.safePopBackStack()
-            inventoryViewModel.resetUpdateItemState()
         }
         else -> {}
     }

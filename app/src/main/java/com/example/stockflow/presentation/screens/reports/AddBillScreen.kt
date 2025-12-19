@@ -30,6 +30,7 @@ import com.example.stockflow.presentation.screens.user.LoadingScreen
 import com.example.stockflow.presentation.viewmodel.BillsViewModel
 import com.example.stockflow.presentation.viewmodel.InventoryViewModel
 import com.example.stockflow.presentation.viewmodel.PartyViewModel
+import com.example.stockflow.presentation.viewmodel.ReportViewModel
 import com.example.stockflow.utils.safePopBackStack
 import java.time.LocalDate
 import java.time.LocalTime
@@ -41,7 +42,8 @@ fun AddBillScreen(
     navController: NavController,
     viewModel: BillsViewModel,
     partyViewModel: PartyViewModel,
-    inventoryViewModel: InventoryViewModel
+    inventoryViewModel: InventoryViewModel,
+    reportViewModel: ReportViewModel
 ) {
     Log.d("Screen","Add Bill Screen")
 
@@ -78,7 +80,7 @@ fun AddBillScreen(
             val parties = partyState.data.data ?: emptyList()
             val inventories = inventoryState.data.data ?: emptyList()
 
-            AddBillScreenUI(navController, viewModel, parties, inventories)
+            AddBillScreenUI(navController, viewModel, parties, inventories,reportViewModel)
         }
     }
 }
@@ -89,23 +91,25 @@ fun AddBillScreenUI(
     navController: NavController,
     viewModel: BillsViewModel,
     parties: List<Party>,
-    inventories: List<Inventory>
+    inventories: List<Inventory>,
+    reportViewModel: ReportViewModel
 ) {
 
     val addBillState by viewModel.addBillState.collectAsState()
 
+    LaunchedEffect(addBillState) {
+        if (addBillState is UiState.Success) {
+            Log.d("Add Bill","UiState Success")
+            viewModel.resetAddBillState()
+            viewModel.resetGetBillState()
+            reportViewModel.resetState()
+            navController.safePopBackStack()
+        }
+    }
+
     when (addBillState){
         is UiState.Loading -> {
             LoadingScreen()
-        }
-        is UiState.Success -> {
-            Log.d("Add Bill","UiState Success")
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("refreshBill", true)
-            viewModel.getAllBills()
-            navController.safePopBackStack()
-            viewModel.resetAddBillState()
         }
         else -> {}
     }

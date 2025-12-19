@@ -45,15 +45,15 @@ fun EditCategoryScreen(
     Log.d("Screen","Edit Category Screen")
 
     val updateCategoryState by viewModel.updateCategoryState.collectAsState()
-
-//    LaunchedEffect(updateCategoryState) {
-//        if (updateCategoryState is UiState.Success){
-//            navController.safePopBackStack()
-//            viewModel.resetAddCategoryState()
-//        }
-//    }
-
     var categoryName by remember { mutableStateOf(category.name) }
+
+    LaunchedEffect(updateCategoryState) {
+        if (updateCategoryState is UiState.Success) {
+            viewModel.resetUpdateCategoryState()
+            viewModel.resetGetCategoriesState()
+            navController.safePopBackStack()
+        }
+    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,
@@ -98,18 +98,17 @@ fun EditCategoryScreen(
                     OutlinedTextField(
                         value = categoryName,
                         onValueChange = { categoryName = it },
-                        label = { Text("Category Name", color = Color.White) }, // White label text
+                        label = { Text("Category Name", color = Color.White) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = TextStyle(color = Color.White) // White input text
+                        textStyle = TextStyle(color = Color.White)
                     )
                 }
                 is UiState.Loading -> {
                     CircularProgressIndicator()
                 }
                 is UiState.Success ->{
-                    navController.safePopBackStack()
-                    viewModel.resetAddCategoryState()
+
                 }
                 else -> {}
             }

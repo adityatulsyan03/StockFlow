@@ -37,6 +37,15 @@ class ReportViewModel @Inject constructor(
     private val _daybookReportByDateState = MutableStateFlow<UiState<CustomResponse<DayBookReport>>>(UiState.Idle)
     val daybookReportByDateState = _daybookReportByDateState.asStateFlow()
 
+    fun resetState() {
+        _transactionsReportState.value = UiState.Idle
+        _stockReportState.value = UiState.Idle
+        _stockReportByInventoryState.value = UiState.Idle
+        _moneyReportState.value = UiState.Idle
+        _daybookReportState.value = UiState.Idle
+        _daybookReportByDateState.value = UiState.Idle
+    }
+
     fun getTransactionsReport(startDate: String, endDate: String) {
         _transactionsReportState.value = UiState.Loading
 

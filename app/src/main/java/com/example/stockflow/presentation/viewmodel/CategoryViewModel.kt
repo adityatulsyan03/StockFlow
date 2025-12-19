@@ -34,6 +34,10 @@ class CategoryViewModel @Inject constructor(
     private val _getCategoriesState = MutableStateFlow<UiState<CustomResponse<List<Category>>>>(UiState.Idle)
     val getCategoriesState = _getCategoriesState.asStateFlow()
 
+    fun resetGetCategoriesState() {
+        _getCategoriesState.value = UiState.Idle
+    }
+
     fun resetAddCategoryState() {
         _addCategoryState.value = UiState.Idle
     }

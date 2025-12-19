@@ -29,6 +29,14 @@ class SellingUnitViewModel @Inject constructor(
     private val _deleteSellingUnitState = MutableStateFlow<UiState<CustomResponse<Unit>>>(UiState.Idle)
     val deleteSellingUnitState = _deleteSellingUnitState.asStateFlow()
 
+    fun resetGetSellingUnitsState(){
+        _sellingUnitsState.value = UiState.Idle
+    }
+
+    fun resetDeleteSellingUnitState(){
+        _deleteSellingUnitState.value = UiState.Idle
+    }
+
     fun resetAddSellingUnit(){
         _addSellingUnitState.value = UiState.Idle
     }

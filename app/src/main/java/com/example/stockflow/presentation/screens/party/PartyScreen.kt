@@ -29,14 +29,6 @@ fun PartyScreen(
     Log.d("Screen","Party Screen")
 
     val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-
-    LaunchedEffect(savedStateHandle?.get<Boolean>("refreshParty")) {
-        val shouldRefresh = savedStateHandle?.get<Boolean>("refreshParty") ?: false
-        if (shouldRefresh) {
-            savedStateHandle.remove<Boolean>("refreshParty")
-        }
-    }
 
     AppScaffold(
         contentAlignment = Alignment.TopStart,

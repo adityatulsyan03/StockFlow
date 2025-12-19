@@ -310,6 +310,7 @@ fun AppNavigator(
             BillDetailsScreen(
                 navController = navController,
                 viewModel = billViewModel,
+                reportViewModel = reportViewModel,
                 bill = bill
             )
         }
@@ -321,7 +322,8 @@ fun AppNavigator(
                 navController = navController,
                 viewModel = billViewModel,
                 partyViewModel = partyViewModel,
-                inventoryViewModel = inventoryViewModel
+                inventoryViewModel = inventoryViewModel,
+                reportViewModel = reportViewModel
             )
         }
 

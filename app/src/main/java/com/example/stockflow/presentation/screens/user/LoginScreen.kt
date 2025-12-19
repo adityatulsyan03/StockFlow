@@ -53,7 +53,10 @@ fun LoginScreen(
             Log.d("LoginScreen", "Failed")
             ErrorScreen()
         }
-        else -> {}
+        else -> {
+            Log.d("LoginScreen", "Else")
+            LoadingScreen()
+        }
     }
 
     val launcher = rememberFirebaseAuthLauncher(onAuthComplete = { result ->
@@ -97,6 +100,7 @@ fun LoginScreen(
 
             Button(
                 onClick = {
+                    Log.d("LoginScreen", "Login Button Clicked")
                     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(token)
                         .requestEmail()
